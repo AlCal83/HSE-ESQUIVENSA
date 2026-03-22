@@ -1959,7 +1959,7 @@ tbody td{padding:8px 12px;vertical-align:middle}
 //   4. Copiar URL de la aplicación web → pegarla en el HTML
 // ═══════════════════════════════════════════════════════════
 
-// Sin necesidad de ID — usa la hoja activa automáticamente
+// Sin ID manual — usa la hoja activa
 
 // ── MODELO RELACIONAL ─────────────────────────────────────────
 // Pestaña Maestra "Trabajadores": dinámica, se auto-expande con
@@ -2014,7 +2014,6 @@ function doPost(e) {
 // ── ROUTER GET (lectura) ──────────────────────────────────────
 function doGet(e) {
   var a = e && e.parameter ? e.parameter.action || '' : '';
-  // Si llega getAll O sin parámetro → devolver todos los datos
   if (a === 'getAll' || a === '') return respuestaJSON(obtenerTodos());
   return respuestaJSON({status: 'OK', version: 'v6', mensaje: 'EsquivenSA FM-H&S-004 activo'});
 }
@@ -2034,21 +2033,12 @@ function guardarEnHoja(nombreHoja, datos, llaveBusqueda) {
   var cols  = HEADERS[nombreHoja];
   if (!cols) return {error: 'Hoja sin encabezados definidos: ' + nombreHoja};
 
-  // Auto-crear pestaña si no existe, o expandir columnas si faltan
+  // Auto-crear pestaña con sus encabezados si no existe
   if (!hoja) {
     hoja = libro.insertSheet(nombreHoja);
     hoja.appendRow(cols);
     hoja.setFrozenRows(1);
     hoja.getRange(1, 1, 1, cols.length).setFontWeight('bold');
-  } else {
-    var cabActual = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0].map(String);
-    var colsFaltantes = cols.filter(function(c) { return cabActual.indexOf(c) < 0; });
-    if (colsFaltantes.length > 0) {
-      var nuevaCab = cabActual.concat(colsFaltantes);
-      hoja.getRange(1, 1, 1, nuevaCab.length).setValues([nuevaCab]);
-      hoja.getRange(1, cabActual.length + 1, 1, colsFaltantes.length).setFontWeight('bold');
-      cols = nuevaCab;
-    }
   }
 
   // Limpiar el campo 'action' antes de escribir
@@ -5889,28 +5879,17 @@ async function gsPush(action, obj) {
     });
     flat.action = action;
     // POST con JSON — sin límite de URL, soporta fotos en base64
+    // Sin Content-Type header — evita preflight CORS que Google Apps Script no maneja
     var resp = await fetch(GS.url, {
       method: 'POST',
       redirect: 'follow',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(flat)
     });
-    if (!resp.ok) {
-      console.error('gsPush HTTP error [' + action + ']:', resp.status, resp.statusText);
-      return false;
-    }
-    var rawText = await resp.text();
-    var result;
-    try { result = JSON.parse(rawText); } catch(pe) {
-      console.error('gsPush JSON parse error [' + action + ']:', rawText.substring(0, 200));
-      return false;
-    }
-    if (!result.ok) {
-      console.warn('gsPush respuesta no-ok [' + action + ']:', result.error || rawText);
-    }
+    if (!resp.ok) return false;
+    var result = JSON.parse(await resp.text());
     return result.ok === true;
   } catch(e) {
-    console.error('gsPush error [' + action + ']:', e.message);
+    console.warn('gsPush error [' + action + ']:', e.message);
     return false;
   }
 }
@@ -7030,20 +7009,19 @@ function saveForm() {
 }
 
 function saveAndPrintPDF() {
-  // Guardar primero, luego abrir vista previa en ventana nueva (evita PDF en blanco)
+  // Preservar cargo y área antes de cualquier operación (evitar pérdida al imprimir)
   var _cargo = document.getElementById('f_cargo')?.value || '';
   var _area  = document.getElementById('f_area')?.value  || '';
   var _dep   = document.getElementById('f_dependencia')?.value || '';
   saveForm();
   setTimeout(function() {
-    // Restaurar campos si quedaron vacíos tras guardar
+    // Restaurar si quedaron vacíos tras guardar
     if(_cargo && document.getElementById('f_cargo') && !document.getElementById('f_cargo').value)
       document.getElementById('f_cargo').value = _cargo;
     if(_area && document.getElementById('f_area') && !document.getElementById('f_area').value)
       document.getElementById('f_area').value = _area;
     if(_dep && document.getElementById('f_dependencia') && !document.getElementById('f_dependencia').value)
       document.getElementById('f_dependencia').value = _dep;
-    // Abrir vista previa en ventana nueva — evita el CSS @media print que blanquea
     printFormActual();
   }, 600);
 }
