@@ -5595,7 +5595,7 @@ function saveConfig() {
 // ═══════════════════════════════════════════════════════
 
 // URL y token embebidos — se actualizan al hacer "Descargar HTML con URL incluida"
-const GS_DEFAULT_URL   = 'https://script.google.com/macros/s/AKfycbyxhdYCngoyjfEKkZF3atLbhM35cXIJURYmNoEOFQmLVxRsSH7nOjxwrD7wEIg9zizI/exec';  // ← se actualiza automáticamente
+const GS_DEFAULT_URL   = 'https://script.google.com/macros/s/AKfycbwisQdSh4SBP50Eh1XUfMTYhh206LGHmWDchmR2zj-1B0KV1AbDITeXYzHdy7QbmqM/exec';  // ← se actualiza automáticamente
 const GS_DEFAULT_TOKEN = '';  // ← token de seguridad embebido
 
 const GS = {
@@ -5607,8 +5607,8 @@ const GS = {
 };
 
 function gsLoad() {
-  // GS_DEFAULT_URL embebida en el archivo tiene prioridad absoluta
-  GS.url   = GS_DEFAULT_URL || '';
+  // localStorage tiene prioridad — el usuario puede cambiar la URL desde Configuración
+  GS.url   = '';
   GS.token = GS_DEFAULT_TOKEN || '';
 
   // Si hay config guardada en localStorage Y tiene URL, usarla
@@ -5661,8 +5661,8 @@ function gsDownloadEmbedded() {
   var source = document.documentElement.outerHTML;
   // Reemplazar la URL embebida
   source = source.replace(
-    "const GS_DEFAULT_URL   = 'https://script.google.com/macros/s/AKfycbyxhdYCngoyjfEKkZF3atLbhM35cXIJURYmNoEOFQmLVxRsSH7nOjxwrD7wEIg9zizI/exec';",
-    "const GS_DEFAULT_URL   = 'https://script.google.com/macros/s/AKfycbyxhdYCngoyjfEKkZF3atLbhM35cXIJURYmNoEOFQmLVxRsSH7nOjxwrD7wEIg9zizI/exec';"
+    "const GS_DEFAULT_URL   = 'https://script.google.com/macros/s/AKfycbwisQdSh4SBP50Eh1XUfMTYhh206LGHmWDchmR2zj-1B0KV1AbDITeXYzHdy7QbmqM/exec';",
+    "const GS_DEFAULT_URL   = 'https://script.google.com/macros/s/AKfycbwisQdSh4SBP50Eh1XUfMTYhh206LGHmWDchmR2zj-1B0KV1AbDITeXYzHdy7QbmqM/exec';"
   );
   // Reemplazar el token embebido
   source = source.replace(
@@ -5883,7 +5883,7 @@ async function gsPush(action, obj) {
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(flat)
     });
-    if (!resp.ok) { console.error('gsPush error '+action+' HTTP:'+resp.status); return false; }
+    if (!resp.ok) { console.error('gsPush HTTP error ['+action+']:', resp.status); return false; }
     try { var r = JSON.parse(await resp.text()); return r.ok === true; }
     catch(pe) { return false; }
   } catch(e) {
