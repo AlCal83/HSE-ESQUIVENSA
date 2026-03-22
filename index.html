@@ -1838,6 +1838,8 @@ tbody td{padding:8px 12px;vertical-align:middle}
           <option value="">— —</option>
           <option>Puede continuar laborando</option>
           <option>Puede continuar laborando con recomendaciones</option>
+          <option>Sin defecto físico que no impide realizar labor asignada</option>
+          <option>Aplazado</option>
           <option>Requiere revaloraciones</option>
           <option>No puede continuar laborando</option>
         </select></div>
@@ -5068,7 +5070,7 @@ function renderEMO() {
     return `<tr style="border-bottom:0.5px solid var(--bor)">
       <td style="padding:6px 10px"><div style="font-weight:600;font-size:12px">${r.nombre||''}</div><div style="font-size:10.5px;color:var(--ink3)">${r.cedula||''}</div></td>
       <td style="padding:6px 10px;font-size:11.5px">${r.empresa||''} · ${r.cargo||''}</td>
-      <td style="padding:6px 10px;font-size:11.5px">${r.tipo==='ingreso'?'Ingreso':r.tipo==='periodico'?'Periódico':r.tipo==='egreso'?'Egreso':'Pendiente'}</td>
+      <td style="padding:6px 10px;font-size:11.5px">${{preingreso:'Pre-ingreso',ingreso:'Pre-ingreso',periodico:'Periódico',Periódico:'Periódico',egreso:'Egreso',postincapacidad:'Post-incapacidad',retorno:'Retorno laboral',seguimiento:'Seguimiento o control'}[r.tipo]||r.tipo||'Pendiente'}</td>
       <td style="padding:6px 10px;font-size:11.5px;font-weight:600">${r.fecha||'—'}</td>
       <td style="padding:6px 10px;font-size:11.5px">${r.ips||'—'}</td>
       <td style="padding:6px 10px;font-size:11.5px">${r.concepto||'—'}</td>
@@ -5094,7 +5096,7 @@ function showEMOHistory(cedula) {
     .sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const nombre = exams[0]?.nombre||cedula;
   document.getElementById('histModal_title').textContent = `📋 Historial Exámenes Médicos — ${nombre}`;
-  const tipoLabel = {ingreso:'Ingreso',periodico:'Periódico',egreso:'Egreso'};
+  const tipoLabel = {preingreso:'Pre-ingreso',ingreso:'Pre-ingreso',periodico:'Periódico',Periódico:'Periódico',egreso:'Egreso',postincapacidad:'Post-incapacidad',retorno:'Retorno laboral',seguimiento:'Seguimiento o control'};
   const rows = exams.map((e,i)=>`
     <div style="background:var(--card);border:1px solid var(--bor);border-radius:var(--r2);padding:10px 12px;margin-bottom:8px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
@@ -5201,9 +5203,6 @@ function saveEMO() {
     saveEMOData(true);
     toast('Examen médico registrado ✓','ok');
   }
-  saveEMOData();
-  // Push automático a Sheets
-  gsAutoSaveEMO(registro);
   document.getElementById('emoModal').style.display='none';
   renderEMO();
 }
