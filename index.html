@@ -1946,35 +1946,58 @@ tbody td{padding:8px 12px;vertical-align:middle}
               Borra todo el contenido que aparece y pega exactamente este código:
               <div style="position:relative;margin-top:8px">
                 <pre id="apps_script_code" style="background:#1e1e1e;color:#d4d4d4;padding:14px;border-radius:6px;font-size:11px;overflow-x:auto;white-space:pre;font-family:monospace;line-height:1.6">// ═══════════════════════════════════════════════════════════
-// EsquivenSA · Apps Script · FM-H&S-004  ·  v7
-// ═══════════════════════════════════════════════════════════
+// EsquivenSA · Apps Script · FM-H&S-004  ·  v5
+// Arquitectura relacional — cédula como llave maestra (PK)
+//
 // INSTRUCCIONES:
-//   1. Abra Google Sheets → Extensiones → Apps Script
-//   2. Borre todo y pegue este código
-//   3. Ctrl+S → nombre: FMHS04 API
-//   4. Implementar → Nueva implementación
+//   1. Reemplace PEGUE_AQUI_EL_ID_DE_SU_HOJA con el ID real
+//   2. Ctrl+S para guardar → nombre del proyecto: FMHS04 API
+//   3. Implementar → Nueva implementación
 //      Tipo: Aplicación web
-//      Ejecutar como: Yo (su correo)
+//      Ejecutar como: Yo (tu correo)
 //      Acceso: Cualquier persona
-//   5. Copie la URL → péguela en Configuración del HTML
+//   4. Copiar URL de la aplicación web → pegarla en el HTML
 // ═══════════════════════════════════════════════════════════
+
+const SHEET_ID = 'PEGUE_AQUI_EL_ID_DE_SU_HOJA';
+
+// ── MODELO RELACIONAL ─────────────────────────────────────────
+// Pestaña Maestra "Trabajadores": dinámica, se auto-expande con
+//   cada campo nuevo que llegue desde el formulario HTML.
+// Pestañas Operativas: sólo cédula + datos de esa actividad.
+//   Nunca repitan nombre/cargo/empresa — búscalos por cédula
+//   en la Pestaña Maestra cuando los necesiten en un reporte.
+// Para agregar una pestaña nueva (ej: Capacitaciones):
+//   1. Agregue su entrada en HEADERS con las columnas deseadas.
+//   2. Agregue un doPost: if (a==='saveCapacitacion') ...
+//   3. Envíe desde el HTML: gsPush('saveCapacitacion', datos).
+// ─────────────────────────────────────────────────────────────
 
 const HEADERS = {
   ExamenesMedicos: [
-    'cedula','tipo','fecha','ips','concepto',
-    'aptitudAlturas','aptitudConfinados','aptitudBrigadista',
-    'recomendaciones','obs','fechaRegistro'
+    'cedula', 'tipo', 'fecha', 'ips', 'concepto',
+    'aptitudAlturas', 'aptitudConfinados', 'aptitudBrigadista',
+    'recomendaciones', 'obs', 'fechaRegistro'
   ],
-  Alturas:    ['cedula','nivel','base_fecha','base_entidad','reentrenamientos','fechaRegistro'],
-  Confinados: ['cedula','nivel','base_fecha','base_entidad','reentrenamientos','fechaRegistro']
+  Alturas: [
+    'cedula', 'nivel', 'base_fecha', 'base_entidad',
+    'reentrenamientos', 'fechaRegistro'
+  ],
+  Confinados: [
+    'cedula', 'nivel', 'base_fecha', 'base_entidad',
+    'reentrenamientos', 'fechaRegistro'
+  ]
+  // ── Para agregar Capacitaciones en el futuro: ──────────────
+  // Capacitaciones: [
+  //   'cedula', 'curso', 'fecha', 'horas', 'entidad',
+  //   'aprobado', 'certificado', 'fechaVencimiento', 'obs'
+  // ],
 };
 
-// ── ROUTER POST ───────────────────────────────────────────────
+// ── ROUTER POST (escritura / acciones) ────────────────────────
 function doPost(e) {
   try {
-    // text/plain llega en e.postData.contents — sin preflight CORS
-    var raw = e.postData ? e.postData.contents : (e.parameter ? e.parameter.data : '{}');
-    var p = JSON.parse(raw);
+    var p = JSON.parse(e.postData.contents);
     var a = p.action || '';
     if (a === 'saveWorker')    return respuestaJSON(guardarTrabajador(p));
     if (a === 'saveEMO')       return respuestaJSON(guardarEnHoja('ExamenesMedicos', p, 'cedula+fecha+tipo'));
@@ -1982,114 +2005,141 @@ function doPost(e) {
     if (a === 'saveConfinado') return respuestaJSON(guardarEnHoja('Confinados',      p, 'cedula+nivel'));
     if (a === 'deleteWorker')  return respuestaJSON(eliminarTrabajador(p.cedula || ''));
     if (a === 'getAll')        return respuestaJSON(obtenerTodos());
-    return respuestaJSON({ok: false, error: 'Accion desconocida: ' + a});
+    return respuestaJSON({error: 'Accion desconocida: ' + a});
   } catch(err) {
-    return respuestaJSON({ok: false, error: err.toString()});
+    return respuestaJSON({error: err.toString()});
   }
 }
 
-// ── ROUTER GET ────────────────────────────────────────────────
+// ── ROUTER GET (lectura) ──────────────────────────────────────
 function doGet(e) {
   var a = e && e.parameter ? e.parameter.action || '' : '';
-  if (a === 'getAll' || a === '') return respuestaJSON(obtenerTodos());
-  return respuestaJSON({status: 'OK', version: 'v7', mensaje: 'EsquivenSA FM-H&S-004 activo'});
+  if (a === 'getAll') return respuestaJSON(obtenerTodos());
+  return respuestaJSON({status: 'OK', version: 'v5', mensaje: 'EsquivenSA FM-H&S-004 activo'});
 }
 
-// ── GUARDAR EN HOJA OPERATIVA ─────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+// FUNCIÓN GENÉRICA — guardar en cualquier pestaña operativa
+// Parámetros:
+//   nombreHoja   : nombre exacto de la pestaña en Sheets
+//   datos        : objeto plano con los campos (incluye 'action')
+//   llaveBusqueda: campos separados por '+' para identificar
+//                  la fila (ej: 'cedula+fecha+tipo')
+// Comportamiento: si la fila existe la actualiza; si no, crea.
+// ═══════════════════════════════════════════════════════════
 function guardarEnHoja(nombreHoja, datos, llaveBusqueda) {
-  var libro = SpreadsheetApp.getActiveSpreadsheet();
+  var libro = SpreadsheetApp.openById(SHEET_ID);
   var hoja  = libro.getSheetByName(nombreHoja);
-  var cols  = HEADERS[nombreHoja].slice();
-  if (!cols) return {ok: false, error: 'Hoja sin encabezados: ' + nombreHoja};
+  var cols  = HEADERS[nombreHoja];
+  if (!cols) return {error: 'Hoja sin encabezados definidos: ' + nombreHoja};
 
+  // Auto-crear pestaña con sus encabezados si no existe
   if (!hoja) {
     hoja = libro.insertSheet(nombreHoja);
     hoja.appendRow(cols);
     hoja.setFrozenRows(1);
-    hoja.getRange(1,1,1,cols.length).setFontWeight('bold');
-  } else {
-    var cabActual = hoja.getRange(1,1,1,hoja.getLastColumn()).getValues()[0].map(String);
-    var faltantes = cols.filter(function(c){ return cabActual.indexOf(c) < 0; });
-    if (faltantes.length > 0) {
-      var nc = cabActual.concat(faltantes);
-      hoja.getRange(1,1,1,nc.length).setValues([nc]);
-      hoja.getRange(1,cabActual.length+1,1,faltantes.length).setFontWeight('bold');
-      cols = nc;
-    } else { cols = cabActual; }
+    hoja.getRange(1, 1, 1, cols.length).setFontWeight('bold');
   }
 
+  // Limpiar el campo 'action' antes de escribir
   var d = {};
-  Object.keys(datos).forEach(function(k){ if(k!=='action') d[k]=datos[k]; });
+  Object.keys(datos).forEach(function(k) { if (k !== 'action') d[k] = datos[k]; });
 
-  var fila = cols.map(function(c){
-    var v=d[c];
-    if(v===undefined||v===null) return '';
-    if(Array.isArray(v)) return v.join(', ');
-    if(typeof v==='object') return JSON.stringify(v);
+  // Construir fila alineada con HEADERS[nombreHoja]
+  var fila = cols.map(function(c) {
+    var v = d[c];
+    if (v === undefined || v === null) return '';
+    if (Array.isArray(v)) return v.join(', ');
+    if (typeof v === 'object') return JSON.stringify(v);
     return String(v);
   });
 
-  var llaves = llaveBusqueda.split('+');
-  var datosHoja = hoja.getDataRange().getValues();
-  var enc = datosHoja[0];
-  var filaExist = -1;
-  for(var i=1;i<datosHoja.length;i++){
-    var coincide = llaves.every(function(l){
-      var ci=enc.indexOf(l);
-      return ci>=0 && String(datosHoja[i][ci]).trim()===String(d[l]||'').trim();
+  // Buscar fila existente usando la llave compuesta
+  var llaves     = llaveBusqueda.split('+');
+  var datosHoja  = hoja.getDataRange().getValues();
+  var encabezado = datosHoja[0];
+  var filaExist  = -1;
+
+  for (var i = 1; i < datosHoja.length; i++) {
+    var coincide = llaves.every(function(llave) {
+      var ci = encabezado.indexOf(llave);
+      return ci >= 0 && String(datosHoja[i][ci]).trim() === String(d[llave] || '').trim();
     });
-    if(coincide){ filaExist=i+1; break; }
+    if (coincide) { filaExist = i + 1; break; }
   }
 
-  if(filaExist>0) hoja.getRange(filaExist,1,1,fila.length).setValues([fila]);
-  else            hoja.appendRow(fila);
-  return {ok:true, accion:filaExist>0?'actualizado':'creado', hoja:nombreHoja};
+  if (filaExist > 0) hoja.getRange(filaExist, 1, 1, fila.length).setValues([fila]);
+  else               hoja.appendRow(fila);
+
+  return {ok: true, accion: filaExist > 0 ? 'actualizado' : 'creado', hoja: nombreHoja};
 }
 
-// ── GUARDAR TRABAJADOR ────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+// GUARDAR TRABAJADOR — Pestaña Maestra dinámica
+// Auto-expande columnas: si el formulario HTML envía un campo
+// nuevo que no existe en la hoja, se crea automáticamente.
+// Así nunca hay desfase entre el HTML y el Sheets.
+// ═══════════════════════════════════════════════════════════
 function guardarTrabajador(datos) {
-  var libro = SpreadsheetApp.getActiveSpreadsheet();
+  var libro = SpreadsheetApp.openById(SHEET_ID);
   var hoja  = libro.getSheetByName('Trabajadores');
-  var w = {};
-  Object.keys(datos).forEach(function(k){ if(k!=='action') w[k]=datos[k]; });
-  var ced = String(w.cedula||'').trim();
-  if(!ced) return {ok:false, error:'Cedula requerida'};
 
-  if(!hoja){
+  // Limpiar campo 'action'
+  var w = {};
+  Object.keys(datos).forEach(function(k) { if (k !== 'action') w[k] = datos[k]; });
+
+  var ced = String(w.cedula || '').trim();
+  if (!ced) return {error: 'Cedula requerida'};
+
+  // Crear hoja si no existe (solo columna cédula; el resto se expande)
+  if (!hoja) {
     hoja = libro.insertSheet('Trabajadores');
     hoja.appendRow(['cedula']);
     hoja.setFrozenRows(1);
   }
-  var cab = hoja.getRange(1,1,1,hoja.getLastColumn()).getValues()[0].map(String);
-  var nuevos = Object.keys(w).filter(function(k){ return cab.indexOf(k)<0; });
-  if(nuevos.length>0){
-    var nc=cab.concat(nuevos);
-    hoja.getRange(1,1,1,nc.length).setValues([nc]);
-    hoja.getRange(1,cab.length+1,1,nuevos.length).setFontWeight('bold');
-    cab=nc;
+
+  // Leer encabezado actual
+  var cab = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0].map(String);
+
+  // Auto-expandir: detectar campos nuevos y agregarlos al final
+  var camposNuevos = Object.keys(w).filter(function(k) { return cab.indexOf(k) < 0; });
+  if (camposNuevos.length > 0) {
+    var nuevaCab = cab.concat(camposNuevos);
+    hoja.getRange(1, 1, 1, nuevaCab.length).setValues([nuevaCab]);
+    hoja.getRange(1, cab.length + 1, 1, camposNuevos.length).setFontWeight('bold');
+    cab = nuevaCab;
   }
-  var fila = cab.map(function(c){
-    var v=w[c];
-    if(v===undefined||v===null) return '';
-    if(Array.isArray(v)) return v.join(', ');
-    if(typeof v==='object') return JSON.stringify(v);
+
+  // Construir fila completa
+  var fila = cab.map(function(c) {
+    var v = w[c];
+    if (v === undefined || v === null) return '';
+    if (Array.isArray(v)) return v.join(', ');
+    if (typeof v === 'object') return JSON.stringify(v);
     return String(v);
   });
-  var colCed=cab.indexOf('cedula');
-  var filas=hoja.getDataRange().getValues();
-  var filaExist=-1;
-  for(var i=1;i<filas.length;i++){
-    if(String(filas[i][colCed]).trim()===ced){ filaExist=i+1; break; }
+
+  // Buscar y actualizar / crear
+  var colCed  = cab.indexOf('cedula');
+  var filas   = hoja.getDataRange().getValues();
+  var filaExist = -1;
+  for (var i = 1; i < filas.length; i++) {
+    if (String(filas[i][colCed]).trim() === ced) { filaExist = i + 1; break; }
   }
-  if(filaExist>0) hoja.getRange(filaExist,1,1,fila.length).setValues([fila]);
-  else            hoja.appendRow(fila);
-  return {ok:true, accion:filaExist>0?'actualizado':'creado', cedula:ced};
+
+  if (filaExist > 0) hoja.getRange(filaExist, 1, 1, fila.length).setValues([fila]);
+  else               hoja.appendRow(fila);
+
+  return {ok: true, accion: filaExist > 0 ? 'actualizado' : 'creado', cedula: ced};
 }
 
-// ── OBTENER TODOS ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+// OBTENER TODOS — devuelve las 4 pestañas al HTML
+// El HTML hace merge inteligente sin reemplazar datos locales
+// ═══════════════════════════════════════════════════════════
 function obtenerTodos() {
   return {
-    ok:true,
+    ok:   true,
     workers:    leerHoja('Trabajadores'),
     examenes:   leerHoja('ExamenesMedicos'),
     alturas:    leerHoja('Alturas'),
@@ -2097,35 +2147,40 @@ function obtenerTodos() {
   };
 }
 
+// ── Leer una pestaña → array de objetos {campo: valor} ───────
 function leerHoja(nombre) {
   try {
-    var hoja = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(nombre);
-    if(!hoja) return [];
-    var d=hoja.getDataRange().getValues();
-    if(d.length<2) return [];
-    var cab=d[0];
-    return d.slice(1).map(function(r){
-      var o={};
-      cab.forEach(function(c,i){ o[String(c)]=r[i]; });
+    var libro = SpreadsheetApp.openById(SHEET_ID);
+    var hoja  = libro.getSheetByName(nombre);
+    if (!hoja) return [];
+    var d = hoja.getDataRange().getValues();
+    if (d.length < 2) return [];
+    var cab = d[0];
+    return d.slice(1).map(function(r) {
+      var o = {};
+      cab.forEach(function(c, i) { o[String(c)] = r[i]; });
       return o;
     });
-  } catch(e){ return []; }
+  } catch(e) { return []; }
 }
 
+// ── Eliminar trabajador por cédula ────────────────────────────
 function eliminarTrabajador(cedula) {
-  var hoja=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Trabajadores');
-  if(!hoja) return {ok:false, error:'Hoja no encontrada'};
-  var d=hoja.getDataRange().getValues();
-  var col=d[0].indexOf('cedula');
-  for(var i=d.length-1;i>=1;i--){
-    if(String(d[i][col]).trim()===String(cedula).trim()){
-      hoja.deleteRow(i+1);
-      return {ok:true};
+  var libro = SpreadsheetApp.openById(SHEET_ID);
+  var hoja  = libro.getSheetByName('Trabajadores');
+  if (!hoja) return {error: 'Hoja no encontrada'};
+  var d   = hoja.getDataRange().getValues();
+  var col = d[0].indexOf('cedula');
+  for (var i = d.length - 1; i >= 1; i--) {
+    if (String(d[i][col]).trim() === String(cedula).trim()) {
+      hoja.deleteRow(i + 1);
+      return {ok: true};
     }
   }
-  return {ok:false, error:'No encontrado: '+cedula};
+  return {error: 'Trabajador no encontrado: ' + cedula};
 }
 
+// ── Respuesta JSON estándar ───────────────────────────────────
 function respuestaJSON(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
@@ -5823,21 +5878,16 @@ async function gsPush(action, obj) {
       else { flat[k] = String(v); }
     });
     flat.action = action;
-    // text/plain = simple request sin preflight CORS + Google puede responder JSON
     var resp = await fetch(GS.url, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(flat)
     });
-    if (!resp.ok) { console.error('gsPush HTTP error ['+action+']:', resp.status); return false; }
-    var rawText = await resp.text();
-    try {
-      var result = JSON.parse(rawText);
-      if (!result.ok) console.warn('gsPush no-ok ['+action+']:', result.error || rawText);
-      return result.ok === true;
-    } catch(pe) { console.error('gsPush parse error:', rawText.substring(0,200)); return false; }
+    if (!resp.ok) { console.error('gsPush error '+action+' HTTP:'+resp.status); return false; }
+    try { var r = JSON.parse(await resp.text()); return r.ok === true; }
+    catch(pe) { return false; }
   } catch(e) {
-    console.error('gsPush error [' + action + ']:', e.message);
+    console.error('gsPush error:', e.message);
     return false;
   }
 }
