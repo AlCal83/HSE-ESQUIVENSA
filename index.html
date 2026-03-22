@@ -1649,9 +1649,12 @@ tbody td{padding:8px 12px;vertical-align:middle}
     <button class="btn btn-ghost btn-sm" onclick="emoSortAsc=!emoSortAsc;renderEMO()" title="Ordenar por fecha">⇅ Fecha</button>
     <select id="emo_tipo" onchange="renderEMO()" style="min-width:150px">
       <option value="">Todos los tipos</option>
-      <option value="ingreso">Ingreso</option>
+      <option value="preingreso">Pre-ingreso</option>
       <option value="periodico">Periódico</option>
       <option value="egreso">Egreso</option>
+      <option value="postincapacidad">Post-incapacidad</option>
+      <option value="retorno">Retorno laboral</option>
+      <option value="seguimiento">Seguimiento o control</option>
     </select>
     <select id="emo_estado" onchange="renderEMO()" style="min-width:150px">
       <option value="">Todos los estados</option>
@@ -1819,9 +1822,12 @@ tbody td{padding:8px 12px;vertical-align:middle}
       <div class="fld"><div class="flabel">Tipo de examen <span class="req">*</span></div>
         <select id="emo_tipo_reg">
           <option value="">— Seleccione —</option>
-          <option value="ingreso">Ingreso</option>
-          <option value="periodico">Periódico</option>
-          <option value="egreso">Egreso</option>
+          <option value="preingreso">Evaluación médica de pre-ingreso</option>
+          <option value="periodico">Evaluación médica periódica</option>
+          <option value="egreso">Evaluación médica de egreso</option>
+          <option value="postincapacidad">Evaluación médica post-incapacidad</option>
+          <option value="retorno">Evaluación médica por retorno laboral</option>
+          <option value="seguimiento">Evaluación médica de seguimiento o control</option>
         </select></div>
       <div class="fld"><div class="flabel">Fecha del examen <span class="req">*</span></div>
         <input type="date" id="emo_fecha"></div>
@@ -1829,16 +1835,19 @@ tbody td{padding:8px 12px;vertical-align:middle}
         <input type="text" id="emo_ips" placeholder="Nombre de la IPS"></div>
       <div class="fld"><div class="flabel">Concepto de aptitud</div>
         <select id="emo_concepto">
-          <option value="">— —</option><option>Apto</option>
-          <option>Apto con restricciones</option><option>Aplazado</option><option>No apto</option>
+          <option value="">— —</option>
+          <option>Puede continuar laborando</option>
+          <option>Puede continuar laborando con recomendaciones</option>
+          <option>Requiere revaloraciones</option>
+          <option>No puede continuar laborando</option>
         </select></div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-        <div class="fld"><div class="flabel">Aptitud Alturas</div>
-          <select id="emo_apta_ta"><option value="">—</option><option>Apto</option><option>Apto con restricciones</option><option>Aplazado</option><option>No apto</option></select></div>
-        <div class="fld"><div class="flabel">Aptitud Confinados</div>
-          <select id="emo_apta_conf"><option value="">—</option><option>Apto</option><option>Apto con restricciones</option><option>Aplazado</option><option>No apto</option></select></div>
-        <div class="fld"><div class="flabel">Aptitud Brigadista</div>
-          <select id="emo_apta_brig"><option value="">—</option><option>Apto</option><option>Apto con restricciones</option><option>Aplazado</option><option>No apto</option></select></div>
+        <div class="fld"><div class="flabel">Alturas</div>
+          <select id="emo_apta_ta"><option value="">—</option><option>Cumple</option><option>Cumple con recomendaciones</option><option>Aplazado</option><option>No cumple</option><option>No aplica</option></select></div>
+        <div class="fld"><div class="flabel">Confinados</div>
+          <select id="emo_apta_conf"><option value="">—</option><option>Cumple</option><option>Cumple con recomendaciones</option><option>Aplazado</option><option>No cumple</option><option>No aplica</option></select></div>
+        <div class="fld"><div class="flabel">Brigadista</div>
+          <select id="emo_apta_brig"><option value="">—</option><option>Cumple</option><option>Cumple con recomendaciones</option><option>Aplazado</option><option>No cumple</option><option>No aplica</option></select></div>
       </div>
       <div class="fld"><div class="flabel">Recomendaciones laborales</div>
         <textarea id="emo_recom" rows="2" placeholder="Restricciones o recomendaciones del médico"></textarea></div>
