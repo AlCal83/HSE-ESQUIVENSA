@@ -282,7 +282,6 @@ tbody td{padding:8px 12px;vertical-align:middle}
 </style>
 </head>
 <body>
-
 <style>
 #loginOverlay {
   position: fixed; inset: 0; z-index: 99999;
@@ -369,6 +368,7 @@ tbody td{padding:8px 12px;vertical-align:middle}
   };
 })();
 </script>
+
 
 
 <header>
@@ -1649,12 +1649,9 @@ tbody td{padding:8px 12px;vertical-align:middle}
     <button class="btn btn-ghost btn-sm" onclick="emoSortAsc=!emoSortAsc;renderEMO()" title="Ordenar por fecha">⇅ Fecha</button>
     <select id="emo_tipo" onchange="renderEMO()" style="min-width:150px">
       <option value="">Todos los tipos</option>
-      <option value="preingreso">Pre-ingreso</option>
+      <option value="ingreso">Ingreso</option>
       <option value="periodico">Periódico</option>
       <option value="egreso">Egreso</option>
-      <option value="postincapacidad">Post-incapacidad</option>
-      <option value="retorno">Retorno laboral</option>
-      <option value="seguimiento">Seguimiento o control</option>
     </select>
     <select id="emo_estado" onchange="renderEMO()" style="min-width:150px">
       <option value="">Todos los estados</option>
@@ -1822,34 +1819,35 @@ tbody td{padding:8px 12px;vertical-align:middle}
       <div class="fld"><div class="flabel">Tipo de examen <span class="req">*</span></div>
         <select id="emo_tipo_reg">
           <option value="">— Seleccione —</option>
-          <option value="preingreso">Evaluación médica de pre-ingreso</option>
-          <option value="periodico">Evaluación médica periódica</option>
-          <option value="egreso">Evaluación médica de egreso</option>
-          <option value="postincapacidad">Evaluación médica post-incapacidad</option>
-          <option value="retorno">Evaluación médica por retorno laboral</option>
-          <option value="seguimiento">Evaluación médica de seguimiento o control</option>
+          <option value="Preingreso">Preingreso</option>
+          <option value="Periódico">Periódico</option>
+          <option value="Egreso">Egreso</option>
+          <option value="Retorno laboral">Retorno laboral</option>
+          <option value="Post-incapacidad">Post-incapacidad</option>
+          <option value="Cambio de ocupación">Cambio de ocupación</option>
+          <option value="Seguimiento y control">Seguimiento y control</option>
         </select></div>
       <div class="fld"><div class="flabel">Fecha del examen <span class="req">*</span></div>
         <input type="date" id="emo_fecha"></div>
       <div class="fld"><div class="flabel">IPS / Institución</div>
         <input type="text" id="emo_ips" placeholder="Nombre de la IPS"></div>
-      <div class="fld"><div class="flabel">Concepto de aptitud</div>
+      <div class="fld"><div class="flabel">Concepto de aptitud ocupacional</div>
         <select id="emo_concepto">
           <option value="">— —</option>
-          <option>Puede continuar laborando</option>
-          <option>Puede continuar laborando con recomendaciones</option>
-          <option>Sin defecto físico que no impide realizar labor asignada</option>
-          <option>Aplazado</option>
-          <option>Requiere revaloraciones</option>
-          <option>No puede continuar laborando</option>
+          <option value="Puede continuar laborando">Puede continuar laborando</option>
+          <option value="Puede continuar laborando con recomendaciones">Puede continuar laborando con recomendaciones</option>
+          <option value="Requiere revaloraciones">Requiere revaloraciones</option>
+          <option value="No puede continuar laborando">No puede continuar laborando</option>
+          <option value="Sin defecto físico que no impide realizar labor asignada">Sin defecto físico que no impide realizar labor asignada</option>
+          <option value="Aplazado">Aplazado</option>
         </select></div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-        <div class="fld"><div class="flabel">Alturas</div>
-          <select id="emo_apta_ta"><option value="">—</option><option>Cumple</option><option>Cumple con recomendaciones</option><option>Aplazado</option><option>No cumple</option><option>No aplica</option></select></div>
-        <div class="fld"><div class="flabel">Confinados</div>
-          <select id="emo_apta_conf"><option value="">—</option><option>Cumple</option><option>Cumple con recomendaciones</option><option>Aplazado</option><option>No cumple</option><option>No aplica</option></select></div>
-        <div class="fld"><div class="flabel">Brigadista</div>
-          <select id="emo_apta_brig"><option value="">—</option><option>Cumple</option><option>Cumple con recomendaciones</option><option>Aplazado</option><option>No cumple</option><option>No aplica</option></select></div>
+        <div class="fld"><div class="flabel">Aptitud Alturas</div>
+          <select id="emo_apta_ta"><option value="">—</option><option value="Cumple">Cumple</option><option value="Cumple con restricciones">Cumple con restricciones</option><option value="Aplazado">Aplazado</option><option value="No cumple">No cumple</option><option value="No aplica">No aplica</option></select></div>
+        <div class="fld"><div class="flabel">Aptitud Confinados</div>
+          <select id="emo_apta_conf"><option value="">—</option><option value="Cumple">Cumple</option><option value="Cumple con restricciones">Cumple con restricciones</option><option value="Aplazado">Aplazado</option><option value="No cumple">No cumple</option><option value="No aplica">No aplica</option></select></div>
+        <div class="fld"><div class="flabel">Aptitud Brigadista</div>
+          <select id="emo_apta_brig"><option value="">—</option><option value="Cumple">Cumple</option><option value="Cumple con restricciones">Cumple con restricciones</option><option value="Aplazado">Aplazado</option><option value="No cumple">No cumple</option><option value="No aplica">No aplica</option></select></div>
       </div>
       <div class="fld"><div class="flabel">Recomendaciones laborales</div>
         <textarea id="emo_recom" rows="2" placeholder="Restricciones o recomendaciones del médico"></textarea></div>
@@ -1943,123 +1941,247 @@ tbody td{padding:8px 12px;vertical-align:middle}
               <strong>Pegar el código del script:</strong><br>
               Borra todo el contenido que aparece y pega exactamente este código:
               <div style="position:relative;margin-top:8px">
-                <pre id="apps_script_code" style="background:#1e1e1e;color:#d4d4d4;padding:14px;border-radius:6px;font-size:11px;overflow-x:auto;white-space:pre;font-family:monospace;line-height:1.6">// EsquivenSA · Script · FM-H&S-004
-// 1. Reemplace el ID de abajo con el ID de su Google Sheets
-// 2. Guarde (Ctrl+S)
-// 3. Implemente como Aplicacion Web (Implementar → Nueva implementacion)
+                <pre id="apps_script_code" style="background:#1e1e1e;color:#d4d4d4;padding:14px;border-radius:6px;font-size:11px;overflow-x:auto;white-space:pre;font-family:monospace;line-height:1.6">// ═══════════════════════════════════════════════════════════
+// EsquivenSA · Apps Script · FM-H&S-004  ·  v5
+// Arquitectura relacional — cédula como llave maestra (PK)
+//
+// INSTRUCCIONES:
+//   1. Reemplace PEGUE_AQUI_EL_ID_DE_SU_HOJA con el ID real
+//   2. Ctrl+S para guardar → nombre del proyecto: FMHS04 API
+//   3. Implementar → Nueva implementación
+//      Tipo: Aplicación web
+//      Ejecutar como: Yo (tu correo)
+//      Acceso: Cualquier persona
+//   4. Copiar URL de la aplicación web → pegarla en el HTML
+// ═══════════════════════════════════════════════════════════
 
 const SHEET_ID = 'PEGUE_AQUI_EL_ID_DE_SU_HOJA';
-const HOJA_TRABAJADORES = 'Trabajadores';
 
+// ── MODELO RELACIONAL ─────────────────────────────────────────
+// Pestaña Maestra "Trabajadores": dinámica, se auto-expande con
+//   cada campo nuevo que llegue desde el formulario HTML.
+// Pestañas Operativas: sólo cédula + datos de esa actividad.
+//   Nunca repitan nombre/cargo/empresa — búscalos por cédula
+//   en la Pestaña Maestra cuando los necesiten en un reporte.
+// Para agregar una pestaña nueva (ej: Capacitaciones):
+//   1. Agregue su entrada en HEADERS con las columnas deseadas.
+//   2. Agregue un doPost: if (a==='saveCapacitacion') ...
+//   3. Envíe desde el HTML: gsPush('saveCapacitacion', datos).
+// ─────────────────────────────────────────────────────────────
+
+const HEADERS = {
+  ExamenesMedicos: [
+    'cedula', 'tipo', 'fecha', 'ips', 'concepto',
+    'aptitudAlturas', 'aptitudConfinados', 'aptitudBrigadista',
+    'recomendaciones', 'obs', 'fechaRegistro'
+  ],
+  Alturas: [
+    'cedula', 'nivel', 'base_fecha', 'base_entidad',
+    'reentrenamientos', 'fechaRegistro'
+  ],
+  Confinados: [
+    'cedula', 'nivel', 'base_fecha', 'base_entidad',
+    'reentrenamientos', 'fechaRegistro'
+  ]
+  // ── Para agregar Capacitaciones en el futuro: ──────────────
+  // Capacitaciones: [
+  //   'cedula', 'curso', 'fecha', 'horas', 'entidad',
+  //   'aprobado', 'certificado', 'fechaVencimiento', 'obs'
+  // ],
+};
+
+// ── ROUTER POST (escritura / acciones) ────────────────────────
 function doPost(e) {
   try {
     var p = JSON.parse(e.postData.contents);
-    if (p.action==='saveWorker')   return respuestaJSON(guardarTrabajador(p.data));
-    if (p.action==='getAll')       return respuestaJSON(obtenerTodos());
-    if (p.action==='deleteWorker') return respuestaJSON(eliminarTrabajador(p.data.cedula));
-    if (p.action==='saveEMO')      return respuestaJSON(guardarExamen(p.data));
-    return respuestaJSON({error:'Accion desconocida'});
-  } catch(err) { return respuestaJSON({error:err.toString()}); }
+    var a = p.action || '';
+    if (a === 'saveWorker')    return respuestaJSON(guardarTrabajador(p));
+    if (a === 'saveEMO')       return respuestaJSON(guardarEnHoja('ExamenesMedicos', p, 'cedula+fecha+tipo'));
+    if (a === 'saveAltura')    return respuestaJSON(guardarEnHoja('Alturas',         p, 'cedula+nivel'));
+    if (a === 'saveConfinado') return respuestaJSON(guardarEnHoja('Confinados',      p, 'cedula+nivel'));
+    if (a === 'deleteWorker')  return respuestaJSON(eliminarTrabajador(p.cedula || ''));
+    if (a === 'getAll')        return respuestaJSON(obtenerTodos());
+    return respuestaJSON({error: 'Accion desconocida: ' + a});
+  } catch(err) {
+    return respuestaJSON({error: err.toString()});
+  }
 }
 
+// ── ROUTER GET (lectura) ──────────────────────────────────────
 function doGet(e) {
-  var a = e&amp;&amp;e.parameter ? e.parameter.action||'' : '';
-  if (a==='getAll') return respuestaJSON(obtenerTodos());
-  if (a==='getEMO')  return respuestaJSON(obtenerExamenes());
-  return respuestaJSON({status:'OK',mensaje:'EsquivenSA FM-H&amp;S-004 OK'});
+  var a = e && e.parameter ? e.parameter.action || '' : '';
+  if (a === 'getAll') return respuestaJSON(obtenerTodos());
+  return respuestaJSON({status: 'OK', version: 'v5', mensaje: 'EsquivenSA FM-H&S-004 activo'});
 }
 
-function guardarTrabajador(w) {
-  var hoja=obtenerOCrearHoja(HOJA_TRABAJADORES), cab=obtenerCabecera(hoja);
-  var ced=String(w.cedula||'').trim();
-  if(!ced) return {error:'Cedula requerida'};
-  var filas=hoja.getDataRange().getValues(), col=cab.indexOf('cedula'), fila=-1;
-  for(var i=1;i&lt;filas.length;i++) if(String(filas[i][col]).trim()===ced){fila=i+1;break;}
-  var row=cab.map(function(c){
-    var v=w[c]; if(Array.isArray(v))return v.join(', ');
-    if(typeof v==='object'&amp;&amp;v)return JSON.stringify(v);
-    return v!==undefined?String(v):'';
-  });
-  if(fila>0)hoja.getRange(fila,1,1,row.length).setValues([row]);
-  else hoja.appendRow(row);
-  return {ok:true,cedula:ced};
-}
-
-function obtenerTodos() {
-  var hoja=obtenerOCrearHoja(HOJA_TRABAJADORES),d=hoja.getDataRange().getValues();
-  if(d.length&lt;2) return {workers:[]};
-  var c=d[0];
-  return {workers:d.slice(1).map(function(r){var o={};c.forEach(function(k,i){o[k]=r[i];});return o;})};
-}
-
-function eliminarTrabajador(cedula) {
-  var hoja=obtenerOCrearHoja(HOJA_TRABAJADORES),d=hoja.getDataRange().getValues();
-  var col=d[0].indexOf('cedula');
-  for(var i=d.length-1;i>=1;i--) if(String(d[i][col]).trim()===String(cedula).trim()){hoja.deleteRow(i+1);return {ok:true};}
-  return {error:'No encontrado'};
-}
-
-function obtenerOCrearHoja(nombre) {
-  var libro=SpreadsheetApp.openById(SHEET_ID), hoja=libro.getSheetByName(nombre);
-  if(!hoja){
-    hoja=libro.insertSheet(nombre);
-    hoja.appendRow(['cedula','nombre','nombre1','nombre2','apellido1','apellido2',
-      'tipoDoc','fnac','edad','sexo','etnia','celular','email','contacto','parentesco',
-      'telContacto','empresa','cargo','area','especialidad','lugarTrabajo','riesgo',
-      'vinculacion','tipoContrato','horario','fechaIngreso','arl','eps','afp','salario',
-      'experiencia','escolaridad','profesion','municipio','estrato','tipoVivienda',
-      'estadoCivil','cabeFamily','tieneHijos','nHijos','rh','enfPre','alcohol','fuma',
-      'actFisica','tieneMascotas','trabajaRemoto','bienestar','canal',
-      'autorizaDatos','fechaEncuesta','respEncuestaNombre','estado','fechaRegistro']);
-    hoja.setFrozenRows(1);
-  }
-  return hoja;
-}
-
-function obtenerCabecera(hoja){
-  return hoja.getRange(1,1,1,hoja.getLastColumn()).getValues()[0].map(String);
-}
-function guardarExamen(examen) {
+// ═══════════════════════════════════════════════════════════
+// FUNCIÓN GENÉRICA — guardar en cualquier pestaña operativa
+// Parámetros:
+//   nombreHoja   : nombre exacto de la pestaña en Sheets
+//   datos        : objeto plano con los campos (incluye 'action')
+//   llaveBusqueda: campos separados por '+' para identificar
+//                  la fila (ej: 'cedula+fecha+tipo')
+// Comportamiento: si la fila existe la actualiza; si no, crea.
+// ═══════════════════════════════════════════════════════════
+function guardarEnHoja(nombreHoja, datos, llaveBusqueda) {
   var libro = SpreadsheetApp.openById(SHEET_ID);
-  var hoja  = libro.getSheetByName('ExamenesMedicos');
+  var hoja  = libro.getSheetByName(nombreHoja);
+  var cols  = HEADERS[nombreHoja];
+  if (!cols) return {error: 'Hoja sin encabezados definidos: ' + nombreHoja};
+
+  // Auto-crear pestaña con sus encabezados si no existe
   if (!hoja) {
-    hoja = libro.insertSheet('ExamenesMedicos');
-    hoja.appendRow(['cedula','nombre','cargo','empresa','tipo','fecha','ips','apto','obs']);
+    hoja = libro.insertSheet(nombreHoja);
+    hoja.appendRow(cols);
+    hoja.setFrozenRows(1);
+    hoja.getRange(1, 1, 1, cols.length).setFontWeight('bold');
+  }
+
+  // Limpiar el campo 'action' antes de escribir
+  var d = {};
+  Object.keys(datos).forEach(function(k) { if (k !== 'action') d[k] = datos[k]; });
+
+  // Construir fila alineada con HEADERS[nombreHoja]
+  var fila = cols.map(function(c) {
+    var v = d[c];
+    if (v === undefined || v === null) return '';
+    if (Array.isArray(v)) return v.join(', ');
+    if (typeof v === 'object') return JSON.stringify(v);
+    return String(v);
+  });
+
+  // Buscar fila existente usando la llave compuesta
+  var llaves     = llaveBusqueda.split('+');
+  var datosHoja  = hoja.getDataRange().getValues();
+  var encabezado = datosHoja[0];
+  var filaExist  = -1;
+
+  for (var i = 1; i < datosHoja.length; i++) {
+    var coincide = llaves.every(function(llave) {
+      var ci = encabezado.indexOf(llave);
+      return ci >= 0 && String(datosHoja[i][ci]).trim() === String(d[llave] || '').trim();
+    });
+    if (coincide) { filaExist = i + 1; break; }
+  }
+
+  if (filaExist > 0) hoja.getRange(filaExist, 1, 1, fila.length).setValues([fila]);
+  else               hoja.appendRow(fila);
+
+  return {ok: true, accion: filaExist > 0 ? 'actualizado' : 'creado', hoja: nombreHoja};
+}
+
+// ═══════════════════════════════════════════════════════════
+// GUARDAR TRABAJADOR — Pestaña Maestra dinámica
+// Auto-expande columnas: si el formulario HTML envía un campo
+// nuevo que no existe en la hoja, se crea automáticamente.
+// Así nunca hay desfase entre el HTML y el Sheets.
+// ═══════════════════════════════════════════════════════════
+function guardarTrabajador(datos) {
+  var libro = SpreadsheetApp.openById(SHEET_ID);
+  var hoja  = libro.getSheetByName('Trabajadores');
+
+  // Limpiar campo 'action'
+  var w = {};
+  Object.keys(datos).forEach(function(k) { if (k !== 'action') w[k] = datos[k]; });
+
+  var ced = String(w.cedula || '').trim();
+  if (!ced) return {error: 'Cedula requerida'};
+
+  // Crear hoja si no existe (solo columna cédula; el resto se expande)
+  if (!hoja) {
+    hoja = libro.insertSheet('Trabajadores');
+    hoja.appendRow(['cedula']);
     hoja.setFrozenRows(1);
   }
-  var datos = hoja.getDataRange().getValues();
-  var colCed = 0, colFecha = 5, colTipo = 4;
-  for (var i = 1; i &lt; datos.length; i++) {
-    if (String(datos[i][colCed])===String(examen.cedula) &&
-        String(datos[i][colFecha])===String(examen.fecha) &&
-        String(datos[i][colTipo])===String(examen.tipo)) {
-      hoja.getRange(i+1,1,1,9).setValues([[
-        examen.cedula,examen.nombre,examen.cargo,examen.empresa,
-        examen.tipo,examen.fecha,examen.ips,examen.apto,examen.obs||''
-      ]]);
-      return {ok:true,accion:'actualizado'};
+
+  // Leer encabezado actual
+  var cab = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0].map(String);
+
+  // Auto-expandir: detectar campos nuevos y agregarlos al final
+  var camposNuevos = Object.keys(w).filter(function(k) { return cab.indexOf(k) < 0; });
+  if (camposNuevos.length > 0) {
+    var nuevaCab = cab.concat(camposNuevos);
+    hoja.getRange(1, 1, 1, nuevaCab.length).setValues([nuevaCab]);
+    hoja.getRange(1, cab.length + 1, 1, camposNuevos.length).setFontWeight('bold');
+    cab = nuevaCab;
+  }
+
+  // Construir fila completa
+  var fila = cab.map(function(c) {
+    var v = w[c];
+    if (v === undefined || v === null) return '';
+    if (Array.isArray(v)) return v.join(', ');
+    if (typeof v === 'object') return JSON.stringify(v);
+    return String(v);
+  });
+
+  // Buscar y actualizar / crear
+  var colCed  = cab.indexOf('cedula');
+  var filas   = hoja.getDataRange().getValues();
+  var filaExist = -1;
+  for (var i = 1; i < filas.length; i++) {
+    if (String(filas[i][colCed]).trim() === ced) { filaExist = i + 1; break; }
+  }
+
+  if (filaExist > 0) hoja.getRange(filaExist, 1, 1, fila.length).setValues([fila]);
+  else               hoja.appendRow(fila);
+
+  return {ok: true, accion: filaExist > 0 ? 'actualizado' : 'creado', cedula: ced};
+}
+
+// ═══════════════════════════════════════════════════════════
+// OBTENER TODOS — devuelve las 4 pestañas al HTML
+// El HTML hace merge inteligente sin reemplazar datos locales
+// ═══════════════════════════════════════════════════════════
+function obtenerTodos() {
+  return {
+    ok:   true,
+    workers:    leerHoja('Trabajadores'),
+    examenes:   leerHoja('ExamenesMedicos'),
+    alturas:    leerHoja('Alturas'),
+    confinados: leerHoja('Confinados')
+  };
+}
+
+// ── Leer una pestaña → array de objetos {campo: valor} ───────
+function leerHoja(nombre) {
+  try {
+    var libro = SpreadsheetApp.openById(SHEET_ID);
+    var hoja  = libro.getSheetByName(nombre);
+    if (!hoja) return [];
+    var d = hoja.getDataRange().getValues();
+    if (d.length < 2) return [];
+    var cab = d[0];
+    return d.slice(1).map(function(r) {
+      var o = {};
+      cab.forEach(function(c, i) { o[String(c)] = r[i]; });
+      return o;
+    });
+  } catch(e) { return []; }
+}
+
+// ── Eliminar trabajador por cédula ────────────────────────────
+function eliminarTrabajador(cedula) {
+  var libro = SpreadsheetApp.openById(SHEET_ID);
+  var hoja  = libro.getSheetByName('Trabajadores');
+  if (!hoja) return {error: 'Hoja no encontrada'};
+  var d   = hoja.getDataRange().getValues();
+  var col = d[0].indexOf('cedula');
+  for (var i = d.length - 1; i >= 1; i--) {
+    if (String(d[i][col]).trim() === String(cedula).trim()) {
+      hoja.deleteRow(i + 1);
+      return {ok: true};
     }
   }
-  hoja.appendRow([examen.cedula,examen.nombre,examen.cargo,examen.empresa,
-    examen.tipo,examen.fecha,examen.ips,examen.apto,examen.obs||'']);
-  return {ok:true,accion:'creado'};
+  return {error: 'Trabajador no encontrado: ' + cedula};
 }
 
-function obtenerExamenes() {
-  var libro = SpreadsheetApp.openById(SHEET_ID);
-  var hoja  = libro.getSheetByName('ExamenesMedicos');
-  if (!hoja) return {examenes:[]};
-  var datos = hoja.getDataRange().getValues();
-  if (datos.length &lt; 2) return {examenes:[]};
-  var cab = datos[0];
-  return {examenes: datos.slice(1).map(function(r){
-    var o={}; cab.forEach(function(c,i){o[c]=r[i];}); return o;
-  })};
-}
-
-function respuestaJSON(obj){
-  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
-}</pre>
+// ── Respuesta JSON estándar ───────────────────────────────────
+function respuestaJSON(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre></pre>
                 <button class="btn btn-ghost btn-xs" style="position:absolute;top:8px;right:8px"
                   onclick="navigator.clipboard.writeText(document.getElementById('apps_script_code').textContent).then(()=>toast('Código copiado ✅','ok'))">
                   📋 Copiar
@@ -4452,7 +4574,7 @@ const CARGOS = ['Almacenista','Analista Contable','Analista de Calidad','Analist
 
 const AREAS = ['ADM & Finanzas','Almacén','Compras','Gerencia','Gestión RRHH','HSE/SIG','Laboratorio','Logística','Mantenimiento','Operaciones','Planificación','Servicios Generales','Sistemas'];
 
-const CERT_FICHAS_BASE = []; // Datos vienen de Sheets
+const CERT_FICHAS_BASE = [{"cedula":"1001885533","nombre":"Carlos Enrique Pedroza Mera","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2019-03-19","entidadBase":"BE Service SOE SAS","reentrenamientos":[{"fecha":"2025-01-15","entidad":"SIGPE"},{"fecha":"2026-01-01","entidad":""},{"fecha":"2027-07-01","entidad":""}]},{"cedula":"1046704311","nombre":"Edinson Rafael Bolaño Molina","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2023-09-04","entidadBase":"Centro de Capacitación Laboral SAS","reentrenamientos":[{"fecha":"2025-01-17","entidad":"SIGPE"},{"fecha":"2026-01-01","entidad":""},{"fecha":"2027-07-01","entidad":""}]},{"cedula":"88252890","nombre":"Jhon Jairo Mosquera Ibañez","cargo":"Oficial Civil","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2020-08-17","entidadBase":"Especialista en Tareas de Alto Riesgo","reentrenamientos":[{"fecha":"2025-07-17","entidad":"SIGPE"},{"fecha":"2027-01-01","entidad":""}]},{"cedula":"1140852008","nombre":"Wilmer Ferney Rueda Sarmiento","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2013-06-20","entidadBase":"SENA","reentrenamientos":[{"fecha":"2023-04-16","entidad":"Sigpe"},{"fecha":"2025-10-03","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"72261981","nombre":"Albeiro Jose Montañez Galindo","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2019-01-31","entidadBase":"CapSecur","reentrenamientos":[{"fecha":"2023-04-14","entidad":"Serso"},{"fecha":"2025-10-03","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"1102122166","nombre":"Anderson José Reyes Arrieta","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2022-04-21","entidadBase":"SEA del Caribe SAS","reentrenamientos":[{"fecha":"2025-10-03","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"1007173896","nombre":"Daniel Elías García Rhenals","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2021-08-30","entidadBase":"Especialista en Tareas de Alto Riesgo","reentrenamientos":[{"fecha":"2025-10-03","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"8643035","nombre":"Eligio José Castro Berrio","cargo":"Supervisor de Operaciones","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2016-10-22","entidadBase":"Cimas Ingeniería (Jorge Gómez P.)","reentrenamientos":[{"fecha":"2023-04-16","entidad":"Sigpe"},{"fecha":"2025-10-07","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"676379","nombre":"Alex Alfredo González Nieves","cargo":"Supervisor de Operaciones","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2019-08-15","entidadBase":"CapSecur","reentrenamientos":[{"fecha":"2025-10-07","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"72218068","nombre":"Miguel Alfonso Molina Molina","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2013-01-14","entidadBase":"SENA","reentrenamientos":[{"fecha":"2023-04-12","entidad":"Sigpe"},{"fecha":"2025-10-07","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"1143118325","nombre":"Samir Antonio Castro Polanco","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2013-12-13","entidadBase":"SENA","reentrenamientos":[{"fecha":"2023-04-18","entidad":"Sigpe"},{"fecha":"2025-10-07","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"72311255","nombre":"Orlando Rosado Herrera","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2019-01-17","entidadBase":"CapSecur","reentrenamientos":[{"fecha":"2025-10-07","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"1042427796","nombre":"Steven de Jesús de Alba Polo","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2012-08-13","entidadBase":"SENA","reentrenamientos":[{"fecha":"2023-04-13","entidad":"Sigpe"},{"fecha":"2025-10-07","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"72005020","nombre":"Meis Manziur Martínez Martínez","cargo":"Técnico Mecánico","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2011-08-22","entidadBase":"SENA","reentrenamientos":[{"fecha":"2025-10-08","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"85464308","nombre":"Carlos Antonio Novoa Orozco","cargo":"Técnico Eléctrico","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2013-07-08","entidadBase":"SENA","reentrenamientos":[{"fecha":"2025-10-08","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"1044622047","nombre":"Ray Miguel del Rio Sarmiento","cargo":"Mecánico","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2023-03-03","entidadBase":"Comfamiliar","reentrenamientos":[{"fecha":"2025-10-09","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"8506384","nombre":"Jair Antonio Jiménez Herrera","cargo":"Técnico Mecánico","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2015-02-24","entidadBase":"Activa","reentrenamientos":[{"fecha":"2025-10-10","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"8776572","nombre":"Omar de Jesús Viloria Villalobos","cargo":"Técnico Eléctrico","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2011-01-25","entidadBase":"SENA","reentrenamientos":[{"fecha":"2025-10-10","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"1045678636","nombre":"Darwin Jamid Pabón Pacheco","cargo":"Ayudante Eléctrico","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2014-03-19","entidadBase":"SENA","reentrenamientos":[{"fecha":"2025-10-17","entidad":"SIGPE"},{"fecha":"2027-04-01","entidad":""}]},{"cedula":"13515837","nombre":"Orlando Gutiérrez Rueda","cargo":"Coordinador Eléctrico","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72291073","nombre":"Balmes Samir Castro Esquivel","cargo":"Coordinador Mecánico","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2018-10-13","entidadBase":"Corporación Alturas y Riesgos Ocupacionales","reentrenamientos":[]},{"cedula":"9023806","nombre":"Eder Alberto Mendoza Acuña","cargo":"Coordinador Sistemas y Aplicativos","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1002231447","nombre":"Gabriel Andrés Ruiz Jaraba","cargo":"Ingeniero en Formación - Planeación","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"577354","nombre":"Victor Thomas Cordero Ramos","cargo":"Coordinador de Compras","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1043029521","nombre":"Aldair Rafael Zúñiga Rocha","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2025-10-03","entidadBase":"SIGPE","reentrenamientos":[{"fecha":"2027-04-01","entidad":""}]},{"cedula":"1129500100","nombre":"Jesús Antonio Ospina Martínez","cargo":"Operador ","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2025-11-04","entidadBase":"SIGPE","reentrenamientos":[{"fecha":"2027-05-01","entidad":""}]},{"cedula":"1001870532","nombre":"Alan Jose Manotas Mendoza","cargo":"Mecánico/Metalista","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2025-10-10","entidadBase":"SIGPE","reentrenamientos":[{"fecha":"2027-04-01","entidad":""}]},{"cedula":"1045681070","nombre":"Enrique Arturo Vélez Bastidas","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2013-06-20","entidadBase":"SENA","reentrenamientos":[]},{"cedula":"1143445676","nombre":"Erick David Gale Méndez","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2023-04-23","entidadBase":"SIGPE","reentrenamientos":[]},{"cedula":"555037","nombre":"José Amador Bracho Betancourt","cargo":"Jefe de Planta","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72285156","nombre":"Alvaro Enrique Calderón Rivera","cargo":"Coordinador HSEQ","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2010-06-12","entidadBase":"SENA","reentrenamientos":[{"fecha":"2023-04-16","entidad":"Sigpe"}]},{"cedula":"1002094058","nombre":"Dayana Sofía Jara Ávila","cargo":"Ingeniero en Formación - HSE","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1010157758","nombre":"Brandon Jose Ortiz Niebles","cargo":"Ingeniero Junior","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72021216","nombre":"Freddy Coba Molina","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2012-10-27","entidadBase":"SENA","reentrenamientos":[]},{"cedula":"1002155331","nombre":"Anderson Deivis Polo García","cargo":"Supervisor Metalistería","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2023-04-28","entidadBase":"SIGPE","reentrenamientos":[]},{"cedula":"1042433449","nombre":"Yan Carlos Ramírez López","cargo":"Soldador","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2017-09-29","entidadBase":"Domoulin OH","reentrenamientos":[]},{"cedula":"72055437","nombre":"Pitter de Jesús Niño Theran","cargo":"Aux Metalistería","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2017-09-29","entidadBase":"Domoulin OH","reentrenamientos":[]},{"cedula":"72159141","nombre":"Esteban Jesus Valenciano Echavez","cargo":"Aux Metalistería","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"2014-12-09","entidadBase":"Cimas Ingeniería (Jorge Gómez P.)","reentrenamientos":[]},{"cedula":"84457374","nombre":"John Nilson Morantes Cortes","cargo":"Oficios Varios - Jardinero","empresa":"EsquivenSA","tipo":"alturas_autorizado","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"555037","nombre":"José Amador Bracho Betancourt","cargo":"Jefe de Planta","empresa":"EsquivenSA","tipo":"alturas_coordinador","vigenciaMeses":18,"fechaBase":"2016-11-28","entidadBase":"Cimas Ingeniería (Jorge Gómez P.)","reentrenamientos":[]},{"cedula":"72285156","nombre":"Alvaro Enrique Calderón Rivera","cargo":"Coordinador HSEQ","empresa":"EsquivenSA","tipo":"alturas_coordinador","vigenciaMeses":18,"fechaBase":"2014-11-01","entidadBase":"IST Training","reentrenamientos":[{"fecha":"2023-04-15","entidad":"Sigpe"}]},{"cedula":"13515837","nombre":"Orlando Gutiérrez Rueda","cargo":"Coordinador Eléctrico","empresa":"EsquivenSA","tipo":"alturas_coordinador","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"9023806","nombre":"Eder Alberto Mendoza Acuña","cargo":"Coordinador Sistemas y Aplicativos","empresa":"EsquivenSA","tipo":"alturas_coordinador","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"577354","nombre":"Victor Thomas Cordero Ramos","cargo":"Coordinador de Compras","empresa":"EsquivenSA","tipo":"alturas_coordinador","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"8643035","nombre":"Eligio José Castro Berrio","cargo":"Supervisor de Operaciones","empresa":"EsquivenSA","tipo":"alturas_coordinador","vigenciaMeses":18,"fechaBase":"2016-10-22","entidadBase":"Cimas Ingeniería (Jorge Gómez P.)","reentrenamientos":[{"fecha":"2023-04-15","entidad":"Sigpe"}]},{"cedula":"676379","nombre":"Alex Alfredo González Nieves","cargo":"Supervisor de Operaciones","empresa":"EsquivenSA","tipo":"alturas_coordinador","vigenciaMeses":18,"fechaBase":"2019-11-05","entidadBase":"CapSecur","reentrenamientos":[]},{"cedula":"1010157758","nombre":"Brandon Jose Ortiz Niebles","cargo":"Ingeniero Junior","empresa":"EsquivenSA","tipo":"alturas_coordinador","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1002231447","nombre":"Gabriel Andrés Ruiz Jaraba","cargo":"Ingeniero en Formación - Planeación","empresa":"EsquivenSA","tipo":"alturas_coordinador","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72218068","nombre":"Miguel Alfonso Molina Molina","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_coordinador","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1140852008","nombre":"Wilmer Ferney Rueda Sarmiento","cargo":"Operador","empresa":"EsquivenSA","tipo":"alturas_coordinador","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1002094058","nombre":"Dayana Sofía Jara Ávila","cargo":"Ingeniero en Formación - HSE","empresa":"EsquivenSA","tipo":"alturas_coordinador","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72291073","nombre":"Balmes Samir Castro Esquivel","cargo":"Coordinador Mecánico","empresa":"EsquivenSA","tipo":"alturas_coordinador","vigenciaMeses":18,"fechaBase":"2018-11-28","entidadBase":"Corporación Alturas y Riesgos Ocupacionales","reentrenamientos":[]},{"cedula":"480422","nombre":"Víctor Alfonso Coronel Romero","cargo":"Gerente Técnico y Operaciones","empresa":"EsquivenSA","tipo":"alturas_administrativo","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"531210","nombre":"Antonio José Moreno Rodríguez","cargo":"Gerente Comercial","empresa":"EsquivenSA","tipo":"alturas_administrativo","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"777271","nombre":"Adriana Araez Arias","cargo":"Gerente Financiero","empresa":"EsquivenSA","tipo":"alturas_administrativo","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1007963714","nombre":"Maryis Paola de Avila Mera","cargo":"Aux Adminsitrativa RRHH","empresa":"EsquivenSA","tipo":"alturas_administrativo","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1001853163","nombre":"Anette Carolina Salazar Muñoz","cargo":"Auxiliar Contable","empresa":"EsquivenSA","tipo":"alturas_administrativo","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1192925896","nombre":"Henry Andres Perez Gomez","cargo":"Aux Contable","empresa":"EsquivenSA","tipo":"alturas_administrativo","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72272780","nombre":"Emiro Jesús Novoa Mangones","cargo":"Almacenista","empresa":"EsquivenSA","tipo":"alturas_administrativo","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1001917879","nombre":"Valentina Ortega Navarro","cargo":"Ingeniero en Formación - Calidad","empresa":"EsquivenSA","tipo":"alturas_administrativo","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1043128952","nombre":"Jean Carlos Martínez Suarez","cargo":"Almacenista","empresa":"EsquivenSA","tipo":"alturas_administrativo","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1129538146","nombre":"Marializ Johana Camacho Arévalo","cargo":"Pasante SENA - Aux de Almacén","empresa":"EsquivenSA","tipo":"alturas_administrativo","vigenciaMeses":18,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"555037","nombre":"José Amador Bracho Betancourt","cargo":"Jefe de Planta","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72285156","nombre":"Alvaro Enrique Calderón Rivera","cargo":"Coordinador HSEQ","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"13515837","nombre":"Orlando Gutiérrez Rueda","cargo":"Coordinador Eléctrico","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72291073","nombre":"Balmes Samir Castro Esquivel","cargo":"Coordinador Mecánico","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"9023806","nombre":"Eder Alberto Mendoza Acuña","cargo":"Coordinador Sistemas y Aplicativos","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"8643035","nombre":"Eligio José Castro Berrio","cargo":"Supervisor de Operaciones","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"676379","nombre":"Alex Alfredo González Nieves","cargo":"Supervisor de Operaciones","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1002094058","nombre":"Dayana Sofía Jara Ávila","cargo":"Ingeniero en Formación - HSE","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1002231447","nombre":"Gabriel Andrés Ruiz Jaraba","cargo":"Ingeniero en Formación - Planeación","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1010157758","nombre":"Brandon Jose Ortiz Niebles","cargo":"Ingeniero Junior","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"577354","nombre":"Victor Thomas Cordero Ramos","cargo":"Coordinador de Compras","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72218068","nombre":"Miguel Alfonso Molina Molina","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1140852008","nombre":"Wilmer Ferney Rueda Sarmiento","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1143118325","nombre":"Samir Antonio Castro Polanco","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72311255","nombre":"Orlando Rosado Herrera","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1042427796","nombre":"Steven de Jesús de Alba Polo","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1045681070","nombre":"Enrique Arturo Vélez Bastidas","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72261981","nombre":"Albeiro Jose Montañez Galindo","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1143445676","nombre":"Erick David Gale Méndez","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72021216","nombre":"Freddy Coba Molina","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1102122166","nombre":"Anderson José Reyes Arrieta","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1001885533","nombre":"Carlos Enrique Pedroza Mera","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1046704311","nombre":"Edinson Rafael Bolaño Molina","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1007173896","nombre":"Daniel Elías García Rhenals","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1043029521","nombre":"Aldair Rafael Zúñiga Rocha","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1002155331","nombre":"Anderson Deivis Polo García","cargo":"Supervisor Metalistería","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1042433449","nombre":"Yan Carlos Ramírez López","cargo":"Soldador","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72055437","nombre":"Pitter de Jesús Niño Theran","cargo":"Aux Metalistería","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72159141","nombre":"Esteban Jesus Valenciano Echavez","cargo":"Aux Metalistería","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72005020","nombre":"Meis Manziur Martínez Martínez","cargo":"Técnico Mecánico","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"8506384","nombre":"Jair Antonio Jiménez Herrera","cargo":"Técnico Mecánico","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1044622047","nombre":"Ray Miguel del Rio Sarmiento","cargo":"Mecánico","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1001870532","nombre":"Alan Jose Manotas Mendoza","cargo":"Mecánico/Metalista","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"8776572","nombre":"Omar de Jesús Viloria Villalobos","cargo":"Técnico Eléctrico","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1045678636","nombre":"Darwin Jamid Pabón Pacheco","cargo":"Ayudante Eléctrico","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"85464308","nombre":"Carlos Antonio Novoa Orozco","cargo":"Técnico Eléctrico","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"88252890","nombre":"Jhon Jairo Mosquera Ibañez","cargo":"Oficial Civil","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"84457374","nombre":"John Nilson Morantes Cortes","cargo":"Oficios Varios - Jardinero","empresa":"EsquivenSA","tipo":"confinados_entrante","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"555037","nombre":"José Amador Bracho Betancourt","cargo":"Jefe de Planta","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72285156","nombre":"Alvaro Enrique Calderón Rivera","cargo":"Coordinador HSEQ","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"13515837","nombre":"Orlando Gutiérrez Rueda","cargo":"Coordinador Eléctrico","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72291073","nombre":"Balmes Samir Castro Esquivel","cargo":"Coordinador Mecánico","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"9023806","nombre":"Eder Alberto Mendoza Acuña","cargo":"Coordinador Sistemas y Aplicativos","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"8643035","nombre":"Eligio José Castro Berrio","cargo":"Supervisor de Operaciones","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"676379","nombre":"Alex Alfredo González Nieves","cargo":"Supervisor de Operaciones","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1002094058","nombre":"Dayana Sofía Jara Ávila","cargo":"Ingeniero en Formación - HSE","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1002231447","nombre":"Gabriel Andrés Ruiz Jaraba","cargo":"Ingeniero en Formación - Planeación","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1010157758","nombre":"Brandon Jose Ortiz Niebles","cargo":"Ingeniero Junior","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"577354","nombre":"Victor Thomas Cordero Ramos","cargo":"Coordinador de Compras","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72218068","nombre":"Miguel Alfonso Molina Molina","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1140852008","nombre":"Wilmer Ferney Rueda Sarmiento","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1143118325","nombre":"Samir Antonio Castro Polanco","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72311255","nombre":"Orlando Rosado Herrera","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1042427796","nombre":"Steven de Jesús de Alba Polo","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1045681070","nombre":"Enrique Arturo Vélez Bastidas","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72261981","nombre":"Albeiro Jose Montañez Galindo","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1143445676","nombre":"Erick David Gale Méndez","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72021216","nombre":"Freddy Coba Molina","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1102122166","nombre":"Anderson José Reyes Arrieta","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1001885533","nombre":"Carlos Enrique Pedroza Mera","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1046704311","nombre":"Edinson Rafael Bolaño Molina","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1007173896","nombre":"Daniel Elías García Rhenals","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1043029521","nombre":"Aldair Rafael Zúñiga Rocha","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1002155331","nombre":"Anderson Deivis Polo García","cargo":"Supervisor Metalistería","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1042433449","nombre":"Yan Carlos Ramírez López","cargo":"Soldador","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72055437","nombre":"Pitter de Jesús Niño Theran","cargo":"Aux Metalistería","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72159141","nombre":"Esteban Jesus Valenciano Echavez","cargo":"Aux Metalistería","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72005020","nombre":"Meis Manziur Martínez Martínez","cargo":"Técnico Mecánico","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"8506384","nombre":"Jair Antonio Jiménez Herrera","cargo":"Técnico Mecánico","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1044622047","nombre":"Ray Miguel del Rio Sarmiento","cargo":"Mecánico","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1001870532","nombre":"Alan Jose Manotas Mendoza","cargo":"Mecánico/Metalista","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"8776572","nombre":"Omar de Jesús Viloria Villalobos","cargo":"Técnico Eléctrico","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1045678636","nombre":"Darwin Jamid Pabón Pacheco","cargo":"Ayudante Eléctrico","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"85464308","nombre":"Carlos Antonio Novoa Orozco","cargo":"Técnico Eléctrico","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"88252890","nombre":"Jhon Jairo Mosquera Ibañez","cargo":"Oficial Civil","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"84457374","nombre":"John Nilson Morantes Cortes","cargo":"Oficios Varios - Jardinero","empresa":"EsquivenSA","tipo":"confinados_vigia","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"555037","nombre":"José Amador Bracho Betancourt","cargo":"Jefe de Planta","empresa":"EsquivenSA","tipo":"confinados_supervisor","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72285156","nombre":"Alvaro Enrique Calderón Rivera","cargo":"Coordinador HSEQ","empresa":"EsquivenSA","tipo":"confinados_supervisor","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"13515837","nombre":"Orlando Gutiérrez Rueda","cargo":"Coordinador Eléctrico","empresa":"EsquivenSA","tipo":"confinados_supervisor","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"9023806","nombre":"Eder Alberto Mendoza Acuña","cargo":"Coordinador Sistemas y Aplicativos","empresa":"EsquivenSA","tipo":"confinados_supervisor","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"577354","nombre":"Victor Thomas Cordero Ramos","cargo":"Coordinador de Compras","empresa":"EsquivenSA","tipo":"confinados_supervisor","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"8643035","nombre":"Eligio José Castro Berrio","cargo":"Supervisor de Operaciones","empresa":"EsquivenSA","tipo":"confinados_supervisor","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"676379","nombre":"Alex Alfredo González Nieves","cargo":"Supervisor de Operaciones","empresa":"EsquivenSA","tipo":"confinados_supervisor","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1010157758","nombre":"Brandon Jose Ortiz Niebles","cargo":"Ingeniero Junior","empresa":"EsquivenSA","tipo":"confinados_supervisor","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1002231447","nombre":"Gabriel Andrés Ruiz Jaraba","cargo":"Ingeniero en Formación - Planeación","empresa":"EsquivenSA","tipo":"confinados_supervisor","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72218068","nombre":"Miguel Alfonso Molina Molina","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_supervisor","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1140852008","nombre":"Wilmer Ferney Rueda Sarmiento","cargo":"Operador","empresa":"EsquivenSA","tipo":"confinados_supervisor","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1002094058","nombre":"Dayana Sofía Jara Ávila","cargo":"Ingeniero en Formación - HSE","empresa":"EsquivenSA","tipo":"confinados_supervisor","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72291073","nombre":"Balmes Samir Castro Esquivel","cargo":"Coordinador Mecánico","empresa":"EsquivenSA","tipo":"confinados_supervisor","vigenciaMeses":36,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"8643035","nombre":"Eligio José Castro Berrio","cargo":"Supervisor de Operaciones","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-17","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"72218068","nombre":"Miguel Alfonso Molina Molina","cargo":"Operador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-18","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"13515837","nombre":"Orlando Gutiérrez Rueda","cargo":"Coordinador Eléctrico","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-18","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1140852008","nombre":"Wilmer Ferney Rueda Sarmiento","cargo":"Operador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-09","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"531210","nombre":"Antonio José Moreno Rodríguez","cargo":"Gerente Comercial","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"555037","nombre":"José Amador Bracho Betancourt","cargo":"Jefe de Planta","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-02-13","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"72311255","nombre":"Orlando Rosado Herrera","cargo":"Operador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-17","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1143118325","nombre":"Samir Antonio Castro Polanco","cargo":"Operador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-18","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"676379","nombre":"Alex Alfredo González Nieves","cargo":"Supervisor de Operaciones","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-17","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"480422","nombre":"Víctor Alfonso Coronel Romero","cargo":"Gerente Técnico y Operaciones","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-11","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"72285156","nombre":"Alvaro Enrique Calderón Rivera","cargo":"Coordinador HSEQ","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-11","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1042427796","nombre":"Steven de Jesús de Alba Polo","cargo":"Operador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-17","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1007963714","nombre":"Maryis Paola de Avila Mera","cargo":"Aux Adminsitrativa RRHH","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1045678636","nombre":"Darwin Jamid Pabón Pacheco","cargo":"Ayudante Eléctrico","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-18","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"72272780","nombre":"Emiro Jesús Novoa Mangones","cargo":"Almacenista","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-09","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"8776572","nombre":"Omar de Jesús Viloria Villalobos","cargo":"Técnico Eléctrico","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-18","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1045681070","nombre":"Enrique Vélez Bastidas","cargo":"Operador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-10","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"72005020","nombre":"Meis Manziur Martínez Martínez","cargo":"Técnico Mecánico","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-18","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"577354","nombre":"Victor Thomas Cordero Ramos","cargo":"Coordinador de Compras","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"777271","nombre":"Adriana Araez Arias","cargo":"Gerente Financiero","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1001853163","nombre":"Anette Carolina Salazar Muñoz","cargo":"Auxiliar Contable","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72261981","nombre":"Albeiro Jose Montañez Galindo","cargo":"Operador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2024-10-18","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1042430192","nombre":"Andrea Nieto Cantillo","cargo":"Oficios Varios","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"55239312","nombre":"Marlys Yuranis Miranda Niebles","cargo":"Oficios Varios","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-02-14","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1192925896","nombre":"Henry Andres Perez Gomez","cargo":"Aux Contable","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1143445676","nombre":"Erick David Gale Méndez","cargo":"Operador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-09-15","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1042433449","nombre":"Yan Carlos Ramírez López","cargo":"Soldador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-10-02","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1002155331","nombre":"Anderson Deivis Polo García","cargo":"Supervisor Metalistería","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-09-13","entidad":"IPS","tipoExamen":"Periódico","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"72055437","nombre":"Pitter de Jesús Niño Theran","cargo":"Aux Metalistería","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72159141","nombre":"Esteban Jesus Valenciano Echavez","cargo":"Aux Metalistería","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1043128952","nombre":"Jean Carlos Martínez Suarez","cargo":"Almacenista","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1010157758","nombre":"Brandon Jose Ortiz Niebles","cargo":"Ingeniero Junior","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"84457374","nombre":"John Nilson Morantes Cortes","cargo":"Oficios Varios - Jardinero","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72021216","nombre":"Freddy Coba Molina","cargo":"Operador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1102122166","nombre":"Anderson José Reyes Arrieta","cargo":"Operador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"8506384","nombre":"Jair Antonio Jiménez Herrera","cargo":"Técnico Mecánico","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"85464308","nombre":"Carlos Antonio Novoa Orozco","cargo":"Técnico Eléctrico","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"9023806","nombre":"Eder Alberto Mendoza Acuña","cargo":"Coordinador Sistemas y Aplicativos","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1002231447","nombre":"Gabriel Andrés Ruiz Jaraba","cargo":"Ingeniero en Formación - Planeación","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"1001885533","nombre":"Carlos Enrique Pedroza Mera","cargo":"Operador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-01-09","entidad":"IPS","tipoExamen":"Ingreso","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1002094058","nombre":"Dayana Sofía Jara Ávila","cargo":"Ingeniero en Formación - HSE","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-01-14","entidad":"IPS","tipoExamen":"Ingreso","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1046704311","nombre":"Edinson Rafael Bolaño Molina","cargo":"Operador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-01-15","entidad":"IPS","tipoExamen":"Ingreso","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1001917879","nombre":"Valentina Ortega Navarro","cargo":"Ingeniero en Formación - Calidad","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[]},{"cedula":"72291073","nombre":"Balmes Samir Castro Esquivel","cargo":"Coordinador Mecánico","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-02-18","entidad":"IPS","tipoExamen":"Ingreso","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1007173896","nombre":"Daniel Elías García Rhenals","cargo":"Operador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-02-21","entidad":"IPS","tipoExamen":"Ingreso","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1044622047","nombre":"Ray Miguel del Rio Sarmiento","cargo":"Mecánico","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-04-10","entidad":"IPS","tipoExamen":"Ingreso","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1043029521","nombre":"Aldair Rafael Zúñiga Rocha","cargo":"Operador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-05-27","entidad":"IPS","tipoExamen":"Ingreso","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1005708895","nombre":"Jhon Héctor Benítez Pérez","cargo":"Montacarguista","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-06-19","entidad":"IPS","tipoExamen":"Ingreso","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1129577231","nombre":"William Alberto González Badillo","cargo":"Coordinador Logístico ","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-07-14","entidad":"IPS","tipoExamen":"Ingreso","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"88252890","nombre":"Jhon Jairo Mosquera Ibañez","cargo":"Oficial Civil","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-07-08","entidad":"IPS","tipoExamen":"Ingreso","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"72145745","nombre":"Roberto Jesus Noriega Pino","cargo":"Auxiliar Logístico","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-07-10","entidad":"IPS","tipoExamen":"Ingreso","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1140873366","nombre":"Daniel David Jimenez Castro","cargo":"Ingeniero de Soporte SIG","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-07-23","entidad":"IPS","tipoExamen":"Ingreso","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1126251429","nombre":"Marcos Fidel Villa López","cargo":"Soldador","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-08-14","entidad":"IPS","tipoExamen":"Ingreso","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1001870532","nombre":"Alan Jose Manotas Mendoza","cargo":"Mecánico/Metalista","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-02-11","entidad":"IPS","tipoExamen":"Ingreso","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]},{"cedula":"1001941958","nombre":"Andrea Carolina de Alba Ramirez","cargo":"Analista Contable","empresa":"EsquivenSA","tipo":"examen_medico","vigenciaMeses":12,"fechaBase":"","entidadBase":"","reentrenamientos":[{"fecha":"2025-09-09","entidad":"IPS","tipoExamen":"Ingreso","concepto":"","aptitudAlturas":"","aptitudConfinados":""}]}];
 let CERT_FICHAS = [];
 
 const CERT_LABELS = {
@@ -4683,10 +4805,10 @@ function loadCerts() {
 function saveTSA() { localStorage.setItem('esq_tsa_v1', JSON.stringify(TSA_DATA)); }
 function saveCSE() { localStorage.setItem('esq_cse_v1', JSON.stringify(CSE_DATA)); }
 function saveEMOData(pushToSheets) {
+  // Sólo persiste en localStorage. El push a Sheets se hace registro a registro
+  // desde saveEMO() y gsPushEMORecord() para evitar N llamadas en paralelo.
   try { localStorage.setItem('esq_emo_v1', JSON.stringify(EMO_DATA)); } catch(e) {}
-  if (pushToSheets && GS.enabled && GS.url) {
-    EMO_DATA.forEach(function(r) { gsPushEMORecord(r); });
-  }
+  // pushToSheets conservado por compatibilidad pero ya no dispara el loop masivo
 }
 
 // ── Utilidades comunes ──
@@ -5070,7 +5192,7 @@ function renderEMO() {
     return `<tr style="border-bottom:0.5px solid var(--bor)">
       <td style="padding:6px 10px"><div style="font-weight:600;font-size:12px">${r.nombre||''}</div><div style="font-size:10.5px;color:var(--ink3)">${r.cedula||''}</div></td>
       <td style="padding:6px 10px;font-size:11.5px">${r.empresa||''} · ${r.cargo||''}</td>
-      <td style="padding:6px 10px;font-size:11.5px">${{preingreso:'Pre-ingreso',ingreso:'Pre-ingreso',periodico:'Periódico',Periódico:'Periódico',egreso:'Egreso',postincapacidad:'Post-incapacidad',retorno:'Retorno laboral',seguimiento:'Seguimiento o control'}[r.tipo]||r.tipo||'Pendiente'}</td>
+      <td style="padding:6px 10px;font-size:11.5px">${r.tipo==='ingreso'?'Ingreso':r.tipo==='periodico'?'Periódico':r.tipo==='egreso'?'Egreso':'Pendiente'}</td>
       <td style="padding:6px 10px;font-size:11.5px;font-weight:600">${r.fecha||'—'}</td>
       <td style="padding:6px 10px;font-size:11.5px">${r.ips||'—'}</td>
       <td style="padding:6px 10px;font-size:11.5px">${r.concepto||'—'}</td>
@@ -5096,7 +5218,7 @@ function showEMOHistory(cedula) {
     .sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const nombre = exams[0]?.nombre||cedula;
   document.getElementById('histModal_title').textContent = `📋 Historial Exámenes Médicos — ${nombre}`;
-  const tipoLabel = {preingreso:'Pre-ingreso',ingreso:'Pre-ingreso',periodico:'Periódico',Periódico:'Periódico',egreso:'Egreso',postincapacidad:'Post-incapacidad',retorno:'Retorno laboral',seguimiento:'Seguimiento o control'};
+  const tipoLabel = {ingreso:'Ingreso',periodico:'Periódico',egreso:'Egreso'};
   const rows = exams.map((e,i)=>`
     <div style="background:var(--card);border:1px solid var(--bor);border-radius:var(--r2);padding:10px 12px;margin-bottom:8px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
@@ -5191,18 +5313,19 @@ function saveEMO() {
   };
   const editIdx = document.getElementById('emo_edit_idx').value;
   if (editIdx !== '' && editIdx !== null && editIdx !== undefined) {
-    // Modo edición: reemplazar registro existente preservando fechaRegistro original
+    // Modo edición: preservar fechaRegistro original
     const original = EMO_DATA[parseInt(editIdx)] || {};
     registro.fechaRegistro = original.fechaRegistro || registro.fechaRegistro;
     EMO_DATA[parseInt(editIdx)] = registro;
     toast('Examen actualizado ✓','ok');
-    saveEMOData(true);
   } else {
     // Modo nuevo
     EMO_DATA.push(registro);
-    saveEMOData(true);
     toast('Examen médico registrado ✓','ok');
   }
+  // ── Un solo guardado local + un único push al registro afectado ──
+  saveEMOData();                // Persiste en localStorage (sin push masivo)
+  gsPushEMORecord(registro);   // Push sólo el registro nuevo/editado
   document.getElementById('emoModal').style.display='none';
   renderEMO();
 }
@@ -5726,11 +5849,12 @@ async function gsTestConnection() {
 async function gsCall(params) {
   if (!GS.url) return null;
   try {
+    // GET sólo para acciones de lectura (sin cuerpo)
     var url = GS.url + '?' + new URLSearchParams(params).toString();
     var resp = await fetch(url, { method: 'GET', redirect: 'follow' });
     if (!resp.ok) return null;
     var result = JSON.parse(await resp.text());
-    return result.ok ? result.data : null;
+    return result.ok ? result.data : (result.workers !== undefined ? result : null);
   } catch(e) {
     console.warn('gsCall error:', e.message);
     return null;
@@ -5750,8 +5874,13 @@ async function gsPush(action, obj) {
       else { flat[k] = String(v); }
     });
     flat.action = action;
-    var url = GS.url + '?' + new URLSearchParams(flat).toString();
-    var resp = await fetch(url, { method: 'GET', redirect: 'follow' });
+    // POST con JSON — sin límite de URL, soporta fotos en base64
+    var resp = await fetch(GS.url, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(flat)
+    });
     if (!resp.ok) return false;
     var result = JSON.parse(await resp.text());
     return result.ok === true;
@@ -5768,7 +5897,7 @@ async function gsPushWorker(worker) {
 
 // ── Push examen médico ───────────────────────────────────────
 async function gsPushEMORecord(record) {
-  return gsPush('saveExamen', record);
+  return gsPush('saveEMO', record);  // El Script espera action:'saveEMO'
 }
 
 // ── Push certificación alturas ───────────────────────────────
@@ -5783,14 +5912,24 @@ async function gsPushCSE(ficha) {
 
 // ── Pull todo desde Sheets (las 4 hojas) ────────────────────
 async function gsPullAll() {
-  var data = await gsCall({ action: 'getAll' });
-  if (!data) return null;
-  return {
-    workers:    Array.isArray(data.Respuestas)  ? data.Respuestas  : [],
-    examenes:   Array.isArray(data.Examenes)    ? data.Examenes    : [],
-    alturas:    Array.isArray(data.Alturas)     ? data.Alturas     : [],
-    confinados: Array.isArray(data.Confinados)  ? data.Confinados  : []
-  };
+  // GET para lectura — sin POST
+  if (!GS.url) return null;
+  try {
+    var resp = await fetch(GS.url + '?action=getAll', { method: 'GET', redirect: 'follow' });
+    if (!resp.ok) return null;
+    var data = JSON.parse(await resp.text());
+    if (!data) return null;
+    // Soporta formato nuevo {workers,examenes,alturas,confinados} y legado {Respuestas,Examenes}
+    return {
+      workers:    Array.isArray(data.workers)    ? data.workers    : (Array.isArray(data.Respuestas)  ? data.Respuestas  : []),
+      examenes:   Array.isArray(data.examenes)   ? data.examenes   : (Array.isArray(data.Examenes)    ? data.Examenes    : []),
+      alturas:    Array.isArray(data.alturas)    ? data.alturas    : (Array.isArray(data.Alturas)     ? data.Alturas     : []),
+      confinados: Array.isArray(data.confinados) ? data.confinados : (Array.isArray(data.Confinados)  ? data.Confinados  : [])
+    };
+  } catch(e) {
+    console.warn('gsPullAll error:', e.message);
+    return null;
+  }
 }
 
 // ── Eliminar trabajador de todas las hojas ───────────────────
@@ -5967,9 +6106,19 @@ async function gsPullSolo() {
       return rw;
     });
 
-    // REEMPLAZAR EMO_DATA con lo que viene de Sheets
+    // ── MERGE EMO_DATA (no reemplazar — combinar con lo local) ──────
+    // Clave de identidad: cedula + fecha + tipo
     if (remote.examenes.length > 0) {
-      EMO_DATA = remote.examenes.slice(); // copia directa desde Sheets
+      remote.examenes.forEach(function(re) {
+        if (!re.cedula) return;
+        var idx = EMO_DATA.findIndex(function(e) {
+          return String(e.cedula) === String(re.cedula) &&
+                 String(e.fecha)  === String(re.fecha)  &&
+                 String(e.tipo)   === String(re.tipo);
+        });
+        if (idx >= 0) EMO_DATA[idx] = Object.assign({}, EMO_DATA[idx], re); // actualizar
+        else          EMO_DATA.push(re);                                      // agregar nuevo
+      });
       saveEMOData();
     }
 
@@ -6718,7 +6867,7 @@ cuidaHijos:gr('cuidaHijos'),
     hijosRango715f: hijosData.filter(h=>calcHijoRango(h.fnac).rango==='7-15'&&h.genero==='Niña/Hija').length,
     hijosRango16n: hijosData.filter(h=>calcHijoRango(h.fnac).rango==='+16'&&h.genero!=='Niña/Hija').length,
     hijosRango16f: hijosData.filter(h=>calcHijoRango(h.fnac).rango==='+16'&&h.genero==='Niña/Hija').length,
-    foto: currentPhoto||'', fechaRegistro: new Date().toISOString(),
+    fechaRegistro: new Date().toISOString(),
     codigo: document.getElementById('fCode').textContent,
     estado: g('f_fechaRetiro') ? 'Inactivo' : 'Activo',
     // Rangos hijos y hogar (Sura)
@@ -6728,10 +6877,6 @@ cuidaHijos:gr('cuidaHijos'),
     convivientesTrabajan: g('f_convivientesTrabajan'), convivienteSalud: g('f_convivienteSalud'),
     // Servicios públicos — campos booleanos individuales para consolidado
     ...(() => { const b={}; ['Energía','Acueducto','Alcantarillado','Gas Natural','Teléfono fijo','Internet'].forEach(s=>{ b['svc_'+s.replace(/[^a-zA-Z0-9]/g,'_')]=!!document.querySelector('#ck_servicios .ck-item.on input[value="'+s+'"]'); }); return b; })(),
-    // Hábitos individuales
-    bebeAlcohol: g('f_alcohol'), frqAlcohol: g('f_frqAlcohol'),
-    fuma: g('f_fuma'), frqFuma: g('f_frqFuma'),
-    actFisica: g('f_actFisica'), cualActFisica: g('f_cualActFisica'), frqActFisica: g('f_frqActFisica'),
     // Bienestar individual
     ...(() => { const b={}; ['ck_bienestar','ck_formacion','ck_deporte'].forEach(id=>{ document.querySelectorAll(`#${id} .ck-item.on input`).forEach(i=>{ b['pref_'+i.value.replace(/[^a-zA-Z0-9]/g,'_')]=true; }); }); return b; })()
 ,
