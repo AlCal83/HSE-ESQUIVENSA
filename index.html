@@ -5595,7 +5595,7 @@ function saveConfig() {
 // ═══════════════════════════════════════════════════════
 
 // URL y token embebidos — se actualizan al hacer "Descargar HTML con URL incluida"
-const GS_DEFAULT_URL   = 'https://script.google.com/macros/s/AKfycbwisQdSh4SBP50Eh1XUfMTYhh206LGHmWDchmR2zj-1B0KV1AbDITeXYzHdy7QbmqM/exec';  // ← se actualiza automáticamente
+const GS_DEFAULT_URL   = 'https://script.google.com/macros/s/';  // ← se actualiza automáticamente
 const GS_DEFAULT_TOKEN = '';  // ← token de seguridad embebido
 
 const GS = {
@@ -5607,7 +5607,7 @@ const GS = {
 };
 
 function gsLoad() {
-  // localStorage tiene prioridad — el usuario puede cambiar la URL desde Configuración
+  // localStorage tiene prioridad
   GS.url   = '';
   GS.token = GS_DEFAULT_TOKEN || '';
 
@@ -5661,8 +5661,8 @@ function gsDownloadEmbedded() {
   var source = document.documentElement.outerHTML;
   // Reemplazar la URL embebida
   source = source.replace(
-    "const GS_DEFAULT_URL   = 'https://script.google.com/macros/s/AKfycbwisQdSh4SBP50Eh1XUfMTYhh206LGHmWDchmR2zj-1B0KV1AbDITeXYzHdy7QbmqM/exec';",
-    "const GS_DEFAULT_URL   = 'https://script.google.com/macros/s/AKfycbwisQdSh4SBP50Eh1XUfMTYhh206LGHmWDchmR2zj-1B0KV1AbDITeXYzHdy7QbmqM/exec';"
+    "const GS_DEFAULT_URL   = 'https://script.google.com/macros/s/';",
+    "const GS_DEFAULT_URL   = 'https://script.google.com/macros/s/';"
   );
   // Reemplazar el token embebido
   source = source.replace(
@@ -5878,11 +5878,9 @@ async function gsPush(action, obj) {
       else { flat[k] = String(v); }
     });
     flat.action = action;
-    var resp = await fetch(GS.url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(flat)
-    });
+    var params = new URLSearchParams();
+    params.append('data', JSON.stringify(flat));
+    var resp = await fetch(GS.url, { method: 'POST', body: params, mode: 'cors' });
     if (!resp.ok) { console.error('gsPush HTTP error ['+action+']:', resp.status); return false; }
     try { var r = JSON.parse(await resp.text()); return r.ok === true; }
     catch(pe) { return false; }
