@@ -5822,7 +5822,15 @@ async function gsTestConnection() {
     const r   = await fetch(GS.url, { method: 'GET' });
     const txt = await r.text();
     console.log('Test response:', txt);
-    if (txt.includes('OK') || txt.includes('funcionando')) {
+    var j = null; try { j = JSON.parse(txt); } catch(pe){}
+    if (j && j.ok) {
+      GS.enabled = true;
+      gsSave();
+      gsUpdateBadge();
+      var nw = (j.workers||[]).length;
+      toast('✅ Conexión exitosa — ' + (nw > 0 ? nw + ' trabajadores en Sheets' : 'Sheets vacío, listo para recibir datos'), 'ok');
+      if(st) st.textContent = '✅ Conectado · ' + nw + ' trabajadores en Sheets';
+    } else if (txt.includes('OK') || txt.includes('funcionando')) {
       GS.enabled = true;
       gsSave();
       gsUpdateBadge();
