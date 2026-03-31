@@ -481,7 +481,6 @@ tbody td{padding:8px 12px;vertical-align:middle}
 
     function concederAcceso(){
       sessionStorage.setItem('hse_auth', Date.now().toString());
-      sessionStorage.setItem('hse_token', 'Esq13975.*');
       document.getElementById('loginOverlay').style.display='none';
     }
     function rechazarIntento(){
@@ -2086,7 +2085,7 @@ var LS_CFG  = 'hse_eqi_cfg_v1';
 
 // ── Token de seguridad — lo pone el login en sessionStorage ───
 function getToken(){
-  return sessionStorage.getItem('hse_token') || 'Esq13975.*';
+  return '';
 }
 // ── URL del script — CFG primero, localStorage como respaldo ──
 function getScriptUrl(){
@@ -2414,7 +2413,7 @@ function guardarFormulario(){
 
   // Guardar en Sheets
   var url = getScriptUrl();
-  var params = new URLSearchParams(Object.assign({accion:'guardarEncuesta', token:getToken()}, datos));
+  var params = new URLSearchParams(Object.assign({accion:'guardarEncuesta'}, datos));
 
   document.getElementById('saveStatus').textContent = '⏳ Guardando en Sheets...';
 
@@ -2974,7 +2973,7 @@ function cargarDesdeSheets(){
   toast('☁️ Conectando con Sheets…');
   fetch(url, {
     method:'POST',
-    body: new URLSearchParams({ accion:'leerTrabajadores', token:getToken() })
+    body: new URLSearchParams({ accion:'leerTrabajadores' })
   })
   .then(function(r){ return r.json(); })
   .then(function(j){
@@ -3183,7 +3182,7 @@ function importarCSV(inp){
         return;
       }
       var datos = registrosAfectados[idx];
-      var params = new URLSearchParams(Object.assign({accion:'guardarEncuesta', token:getToken()}, datos));
+      var params = new URLSearchParams(Object.assign({accion:'guardarEncuesta'}, datos));
       fetch(url, { method:'POST', body:params })
         .then(function(r){ return r.json(); })
         .then(function(json){
@@ -3226,7 +3225,7 @@ function darDeBaja(cedula){
   toast(nombre+' dado de baja · Sincronizando…','ok');
   var url = getScriptUrl();
   if(url){
-    var params = new URLSearchParams({accion:'darDeBaja', token:getToken(), cedula:cedula, fechaRetiro:fecha});
+    var params = new URLSearchParams({accion:'darDeBaja', cedula:cedula, fechaRetiro:fecha});
     fetch(url,{method:'POST',body:params})
       .then(function(r){return r.json();})
       .then(function(j){ toast(j.ok ? '☁️ Baja sincronizada en Sheets' : '⚠️ Error Sheets: '+j.error, j.ok?'ok':'err'); })
@@ -3249,7 +3248,7 @@ function reactivarTrabajador(cedula){
   // Sync Sheets — marcar Activo en Trabajadores
   var url = getScriptUrl();
   if(url){
-    var params = new URLSearchParams({accion:'reactivarTrabajador', token:getToken(), cedula:cedula});
+    var params = new URLSearchParams({accion:'reactivarTrabajador', cedula:cedula});
     fetch(url,{method:'POST',body:params})
       .then(function(r){return r.json();})
       .then(function(j){ toast(j.ok ? '☁️ Reactivación sincronizada en Sheets' : '⚠️ Error Sheets: '+j.error, j.ok?'ok':'err'); })
@@ -3274,7 +3273,7 @@ function eliminarTrabajador(cedula){
   toast('Registro eliminado · Sincronizando…');
   var url = getScriptUrl();
   if(url){
-    var params = new URLSearchParams({accion:'eliminarRegistro', token:getToken(), cedula:cedula});
+    var params = new URLSearchParams({accion:'eliminarRegistro', cedula:cedula});
     fetch(url,{method:'POST',body:params})
       .then(function(r){return r.json();})
       .then(function(j){ toast(j.ok ? '☁️ Eliminación sincronizada en Sheets' : '⚠️ Error Sheets: '+j.error, j.ok?'ok':'err'); })
@@ -3713,7 +3712,7 @@ function guardarEMO(){
   cerrarModalEMO();
   renderEMO();
   var url = getScriptUrl();
-  if(url){ var p=new URLSearchParams(Object.assign({accion:'guardarExamen', token:getToken()},reg)); fetch(url,{method:'POST',body:p}).catch(function(){}); }
+  if(url){ var p=new URLSearchParams(Object.assign({accion:'guardarExamen'},reg)); fetch(url,{method:'POST',body:p}).catch(function(){}); }
 }
 
 function eliminarEMO(idx){
@@ -3880,7 +3879,6 @@ function sincronizarModulo(modulo){
     method:'POST',
     body: new URLSearchParams({
       accion: 'sincronizarModulo',
-      token: getToken(),
       modulo: modulo,
       registros: JSON.stringify(DATA)
     })
@@ -3983,7 +3981,7 @@ function guardarCert(){
   guardarModulo(KEY,DATA); cerrarModalCert();
   if(modulo==='alt') renderAlturas(); else renderConfinados();
   var url=getScriptUrl(); var accion=modulo==='alt'?'guardarAlturas':'guardarConfinados';
-  if(url){ fetch(url,{method:'POST',body:new URLSearchParams(Object.assign({accion:accion, token:getToken()},reg))}).catch(function(){}); }
+  if(url){ fetch(url,{method:'POST',body:new URLSearchParams(Object.assign({accion:accion},reg))}).catch(function(){}); }
 }
 function eliminarCert(modulo,idx){
   if(!confirm('Eliminar esta certificacion?')) return;
