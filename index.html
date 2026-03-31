@@ -1683,6 +1683,7 @@ tbody td{padding:8px 12px;vertical-align:middle}
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <button class="btn btn-success btn-sm" onclick="exportarCSV()">⬇ Exportar CSV</button>
       <label class="btn btn-secondary btn-sm" style="cursor:pointer">📂 Importar CSV<input type="file" accept=".csv" style="display:none" onchange="importarCSV(this)"></label>
+      <button class="btn btn-secondary btn-sm" onclick="cargarDesdeSheets()" title="Descarga todos los registros de Google Sheets a este navegador">☁️ Cargar desde Sheets</button>
       <button class="btn btn-primary btn-sm" onclick="nuevaEncuesta()">＋ Nueva encuesta</button>
     </div>
   </div>
@@ -1963,7 +1964,7 @@ tbody td{padding:8px 12px;vertical-align:middle}
   <div class="dash-card" style="margin-bottom:16px">
     <div class="dc-title">☁️ Conexión a Google Sheets</div>
     <div id="gs_badge" style="display:inline-block;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:14px;background:var(--grn2);color:var(--grn)">
-      ✅ Script configurado — HSE_Script_EQI v1.0
+      ✅ Script configurado — HSE_Script_EQI v1.5
     </div>
     <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-bottom:12px">
       <div class="fld" style="margin:0">
@@ -1974,7 +1975,7 @@ tbody td{padding:8px 12px;vertical-align:middle}
       <button class="btn btn-ghost btn-sm" onclick="guardarUrlScript()">💾 Guardar URL</button>
     </div>
     <div style="font-size:11.5px;color:var(--ink3)">
-      📋 Script: <strong>HSE_Script_EQI</strong> · Sheets: <strong>HSE_Dashboard_EQI</strong> · Versión: <strong>v1.0 — 2026-03-23</strong>
+      📋 Script: <strong>HSE_Script_EQI</strong> · Sheets: <strong>HSE_Dashboard_EQI</strong> · Versión: <strong>v1.5 — 2026-03-31</strong>
     </div>
   </div>
 
@@ -2964,6 +2965,34 @@ function barChart(id, data){
     var pct = Math.round((e[1]/max)*100);
     return '<div class="bar-row"><div class="bar-lbl" title="'+e[0]+'">'+e[0].substring(0,18)+'</div><div class="bar-track"><div class="bar-fill" style="width:'+pct+'%"></div></div><div class="bar-val">'+e[1]+'</div></div>';
   }).join('') || '<div style="font-size:12px;color:var(--ink3)">Sin datos</div>';
+}
+
+// ─── CARGAR DESDE SHEETS ─────────────────────────────────────
+function cargarDesdeSheets(){
+  var url = getScriptUrl();
+  if(!url){ toast('Configure la URL del script primero','err'); return; }
+  toast('☁️ Conectando con Sheets…');
+  fetch(url, {
+    method:'POST',
+    body: new URLSearchParams({ accion:'leerTrabajadores', token:getToken() })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(j){
+    if(!j.ok){ toast('⚠️ Error: '+(j.error||'desconocido'),'err'); return; }
+    var nuevos=0, actualizados=0;
+    (j.registros||[]).forEach(function(w){
+      if(!w.cedula) return;
+      var idx = DB.findIndex(function(x){ return String(x.cedula)===String(w.cedula); });
+      if(idx>=0){ DB[idx]=Object.assign(DB[idx],w); actualizados++; }
+      else { DB.push(w); nuevos++; }
+    });
+    guardarEnLS();
+    poblarSelectTrabajadores();
+    renderDB();
+    renderDash();
+    toast('✅ '+nuevos+' nuevos · '+actualizados+' actualizados desde Sheets','ok');
+  })
+  .catch(function(){ toast('⚠️ Sin conexión a Sheets','err'); });
 }
 
 // ─── REGISTROS — Fase 4: filtros, paginación, CSV ────────────
