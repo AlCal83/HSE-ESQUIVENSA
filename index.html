@@ -1682,7 +1682,8 @@ tbody td{padding:8px 12px;vertical-align:middle}
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <button class="btn btn-success btn-sm" onclick="exportarCSV()">⬇ Exportar CSV</button>
       <label class="btn btn-secondary btn-sm" style="cursor:pointer">📂 Importar CSV<input type="file" accept=".csv" style="display:none" onchange="importarCSV(this)"></label>
-      <button class="btn btn-secondary btn-sm" onclick="cargarDesdeSheets()" title="Descarga todos los registros de Google Sheets a este navegador">☁️ Cargar desde Sheets</button>
+      <button class="btn btn-secondary btn-sm" onclick="cargarTrabajadoresDesdeSheets()" title="Carga estados y datos básicos desde hoja Trabajadores">☁️ Trabajadores</button>
+      <button class="btn btn-secondary btn-sm" onclick="cargarEncuestasDesdeSheets()" title="Completa encuestas desde hoja Sociodemografico">📋 Encuestas</button>
       <button class="btn btn-primary btn-sm" onclick="nuevaEncuesta()">＋ Nueva encuesta</button>
     </div>
   </div>
@@ -2985,12 +2986,52 @@ function barChart(id, data){
 }
 
 // ─── CARGAR DESDE SHEETS ─────────────────────────────────────
-function cargarDesdeSheets(){
+// ─── BOTÓN 1: CARGAR TRABAJADORES (estado + datos básicos) ──
+// Lee SOLO hoja Trabajadores — fuente de verdad para estados
+function cargarTrabajadoresDesdeSheets(){
   var url = getScriptUrl();
   if(!url){ toast('Configure la URL del script primero','err'); return; }
-  toast('☁️ Cargando encuestas completas desde Sheets…');
+  toast('☁️ Cargando trabajadores desde Sheets…');
+  fetch(url, { method:'POST', body: new URLSearchParams({ accion:'leerTrabajadores' }) })
+  .then(function(r){ return r.json(); })
+  .then(function(j){
+    if(!j.ok){ toast('⚠️ Error: '+(j.error||'desconocido'),'err'); return; }
+    var registros = j.registros||[];
+    if(!registros.length){
+      toast('⚠️ Hoja Trabajadores vacía — usa 📋 Encuestas para cargar','err');
+      return;
+    }
+    var nuevos=0, actualizados=0;
+    registros.forEach(function(w){
+      if(!w.cedula) return;
+      var idx = DB.findIndex(function(x){ return String(x.cedula)===String(w.cedula); });
+      if(idx>=0){
+        // Actualizar datos básicos Y estado desde Sheets
+        DB[idx].nombre_completo = w.nombre_completo||DB[idx].nombre_completo;
+        DB[idx].empresa  = w.empresa ||DB[idx].empresa;
+        DB[idx].cargo    = w.cargo   ||DB[idx].cargo;
+        DB[idx].area     = w.area    ||DB[idx].area;
+        DB[idx].estado   = w.estado  ||DB[idx].estado; // estado viene de Trabajadores
+        actualizados++;
+      } else {
+        DB.push(w); nuevos++;
+      }
+    });
+    guardarEnLS();
+    poblarSelectTrabajadores();
+    renderDB();
+    renderDash();
+    toast('✅ '+nuevos+' nuevos · '+actualizados+' actualizados desde Trabajadores','ok');
+  })
+  .catch(function(){ toast('⚠️ Sin conexión a Sheets','err'); });
+}
 
-  // Paso 1: leer encuestas completas (Sociodemografico)
+// ─── BOTÓN 2: CARGAR ENCUESTAS (datos completos del formulario) ──
+// Lee Sociodemografico — NO toca el estado
+function cargarEncuestasDesdeSheets(){
+  var url = getScriptUrl();
+  if(!url){ toast('Configure la URL del script primero','err'); return; }
+  toast('📋 Cargando encuestas desde Sheets…');
   fetch(url, { method:'POST', body: new URLSearchParams({ accion:'leerEncuestas' }) })
   .then(function(r){ return r.json(); })
   .then(function(j){
@@ -3001,18 +3042,20 @@ function cargarDesdeSheets(){
       normalizarCamposJSON(w);
       var idx = DB.findIndex(function(x){ return String(x.cedula)===String(w.cedula); });
       if(idx>=0){
-        // Preservar estado local — nunca sobreescribir con el del Sociodemografico
-        var estadoLocal = DB[idx].estado;
+        var estadoActual = DB[idx].estado; // preservar estado local
         DB[idx] = Object.assign(DB[idx], w);
-        if(estadoLocal) DB[idx].estado = estadoLocal;
+        DB[idx].estado = estadoActual;     // restaurar estado — nunca viene de Sociodemografico
         actualizados++;
-      } else { DB.push(w); nuevos++; }
+      } else {
+        w.estado = 'Activo'; // nuevo trabajador — Activo por defecto
+        DB.push(w); nuevos++;
+      }
     });
     guardarEnLS();
     poblarSelectTrabajadores();
     renderDB();
     renderDash();
-    toast('✅ '+nuevos+' nuevos · '+actualizados+' actualizados','ok');
+    toast('✅ '+nuevos+' nuevos · '+actualizados+' encuestas cargadas','ok');
   })
   .catch(function(){ toast('⚠️ Sin conexión a Sheets','err'); });
 }
