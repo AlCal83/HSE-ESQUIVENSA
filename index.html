@@ -2998,11 +2998,15 @@ function cargarDesdeSheets(){
     var nuevos=0, actualizados=0;
     (j.registros||[]).forEach(function(w){
       if(!w.cedula) return;
-      // Normalizar campos JSON
       normalizarCamposJSON(w);
       var idx = DB.findIndex(function(x){ return String(x.cedula)===String(w.cedula); });
-      if(idx>=0){ DB[idx]=Object.assign(DB[idx],w); actualizados++; }
-      else { DB.push(w); nuevos++; }
+      if(idx>=0){
+        // Preservar estado local — nunca sobreescribir con el del Sociodemografico
+        var estadoLocal = DB[idx].estado;
+        DB[idx] = Object.assign(DB[idx], w);
+        if(estadoLocal) DB[idx].estado = estadoLocal;
+        actualizados++;
+      } else { DB.push(w); nuevos++; }
     });
     guardarEnLS();
     poblarSelectTrabajadores();
