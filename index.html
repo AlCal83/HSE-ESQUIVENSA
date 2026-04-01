@@ -3108,28 +3108,45 @@ function renderDB(){
 // ─── EXPORTAR CSV ────────────────────────────────────────────
 function exportarCSV(){
   if(!DB.length){ toast('No hay registros para exportar','err'); return; }
-  // Columnas: todas las claves que existan en al menos un registro
-  var cols = [];
-  DB.forEach(function(w){
-    Object.keys(w).forEach(function(k){
-      if(k.charAt(0)!=='_' && cols.indexOf(k)<0) cols.push(k);
-    });
-  });
-  // Construir CSV
+  // Columnas fijas en el orden correcto — sin campos internos (_)
+  var cols = ['cedula','tipoDoc','expedida_en','nombre1','nombre2','apellido1','apellido2',
+    'fnac','dpto_nac','ciudad_nac','etnia','sexo','genero','orientacion','celular','email',
+    'contacto','parentesco','telContacto','empresa','empresa_otra','cargo','cargo_otro',
+    'lugarTrabajo','area','especialidad','riesgo','vinculacion','tipoContrato','horario',
+    'fechaIngreso','arl','eps','afp','salario','experiencia','escolaridad','profesion',
+    'titulo','institucion','anioGrad','estudia','estudia_nivel','estudia_prog','estudia_inst',
+    'idiomasDetalle','cursos','tarjetasPro','postgrados','tieneTarPro','municipio','dpto',
+    'zona','direccion','barrio','estrato','tipoVivienda','propVivienda','pagaCuota','valorCuota',
+    'transporte','minutos','requiereDesp','servicios','equipos','estadoCivil','cabeFamily',
+    'nPersonasVivienda','conQuienVive','personasACargo','tieneHijos','nHijos','hijos_detalle',
+    'familiarDiscap','depecon','situFamiliares','quienCuidaHijos','convivientesTrabajan',
+    'pagaCuidador','rh','discapPropia','enfPre','tratMedico','medicamento','alergico',
+    'cualAlergia','alcohol','frecAlcohol','fuma','frecFuma','actFisica','actFisicaSelec',
+    'frecActFis','tieneMascotas','tipoMascota','nMascotas','trabajaRemoto','lugarCasa',
+    'insumos','lugarSeguro','buenaIlum','pausasActivas','relFamFavorece','bienestar',
+    'bienestarOtras','formacion','formacionTec','formacionOtras','hobbiesSelec','hobbiesExtras',
+    'trabajoIndep','cualTrabInd','canal','canalOtro','autMensajeria','mensajeriaOtro',
+    'tieneEmailCorp','emailCorp','tieneLineCorp','lineaCorp','redes','autorizaDatos',
+    'observaciones','fechaEncuesta','respEncuestaCedula','respEncuestaNombre','respEncuestaCargo',
+    'estado'];
   var sep = ';';
   var lines = [cols.join(sep)];
   DB.forEach(function(w){
     var row = cols.map(function(c){
       var val = w[c];
-      if(val===undefined||val===null) return '';
+      if(val===undefined||val===null||val==='') return '';
+      // Normalizar arrays — asegurar que sean JSON limpio
       if(typeof val==='object') val = JSON.stringify(val);
-      val = String(val).replace(/"/g,'""');
-      if(val.indexOf(sep)>=0||val.indexOf('"')>=0||val.indexOf('\n')>=0) val = '"'+val+'"';
+      val = String(val);
+      // Escapar comillas dobles y envolver en comillas si necesario
+      if(val.indexOf(sep)>=0||val.indexOf('"')>=0||val.indexOf('\n')>=0||val.indexOf('\r')>=0){
+        val = '"'+val.replace(/"/g,'""')+'"';
+      }
       return val;
     });
     lines.push(row.join(sep));
   });
-  var blob = new Blob(['\uFEFF'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  var blob = new Blob(['\uFEFF'+lines.join('\r\n')], {type:'text/csv;charset=utf-8'});
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
   a.href = url;
@@ -3140,27 +3157,80 @@ function exportarCSV(){
 }
 
 // ─── IMPORTAR CSV ────────────────────────────────────────────
+function parsearCSV(text){
+  if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+  var sep=text.indexOf(';')>=0?';':',';
+  var rows=[],row=[],campo='',enQ=false;
+  for(var i=0;i<text.length;i++){
+    var c=text[i],n=text[i+1];
+    if(c==='"'){
+      if(enQ&&n==='"'){campo+='"';i++;}
+      else enQ=!enQ;
+    } else if(c===sep&&!enQ){
+      row.push(campo);campo='';
+    } else if(!enQ&&(c==='\r'||c==='\n')){
+      if(c==='\r'&&n==='\n') i++;
+      row.push(campo);campo='';
+      if(row.some(function(x){return x.trim();})) rows.push(row);
+      row=[];
+    } else { campo+=c; }
+  }
+  if(campo||row.length){row.push(campo);if(row.some(function(x){return x.trim();}))rows.push(row);}
+  return rows;
+}
+function normalizarCamposJSON(obj){
+  // Campos que deben ser arrays JSON — normaliza strings mal escapados
+  var camposJSON = ['idiomasDetalle','cursos','tarjetasPro','postgrados','servicios','equipos',
+    'conQuienVive','situFamiliares','discapPropia','actFisicaSelec','tipoMascota',
+    'lugarCasa','insumos','bienestar','formacion','formacionTec','hobbiesSelec',
+    'autMensajeria','redes','hijos_detalle','lugarTrabajo'];
+  camposJSON.forEach(function(campo){
+    var val = obj[campo];
+    if(!val || val==='' || val==='[]') { obj[campo]='[]'; return; }
+    if(Array.isArray(val)) { obj[campo]=JSON.stringify(val); return; }
+    // Intentar parsear — si falla, dejar como string vacío
+    try {
+      var parsed = JSON.parse(val);
+      // Si parseó como array de arrays o strings anidados, aplanar
+      if(Array.isArray(parsed)){
+        var limpio = [];
+        parsed.forEach(function(item){
+          if(typeof item === 'string'){
+            // item puede ser un JSON string anidado
+            try{ var sub=JSON.parse(item); if(Array.isArray(sub)) limpio=limpio.concat(sub); else limpio.push(sub); }
+            catch(e){ if(item.trim()) limpio.push(item); }
+          } else if(item && typeof item==='object'){ limpio.push(item); }
+        });
+        obj[campo] = JSON.stringify(limpio);
+      } else { obj[campo] = JSON.stringify([]); }
+    } catch(e){ obj[campo]='[]'; }
+  });
+  return obj;
+}
+
 function importarCSV(inp){
   if(!inp.files[0]) return;
   var reader = new FileReader();
   reader.onload = function(e){
     var text = e.target.result;
-    var lines = text.split(/\r?\n/).filter(function(l){ return l.trim(); });
-    if(lines.length < 2){ toast('CSV vacío o sin datos','err'); return; }
-    var sep = lines[0].indexOf(';')>=0 ? ';' : ',';
-    var headers = lines[0].split(sep).map(function(h){ return h.replace(/"/g,'').trim(); });
+    var rows = parsearCSV(text);
+    if(rows.length < 2){ toast('CSV vacío o sin datos','err'); return; }
+    var headers = rows[0].map(function(h){ return h.trim(); });
     var colCedula = headers.indexOf('cedula');
     if(colCedula < 0){ toast('El CSV debe tener una columna "cedula"','err'); return; }
     var nuevos = 0, actualizados = 0;
     var registrosAfectados = [];
-    for(var i=1; i<lines.length; i++){
-      var vals = lines[i].split(sep).map(function(v){ return v.replace(/^"|"$/g,'').trim(); });
+    for(var i=1; i<rows.length; i++){
+      var vals = rows[i];
       var obj = {};
-      headers.forEach(function(h, idx){ if(vals[idx]!==undefined) obj[h] = vals[idx]; });
+      headers.forEach(function(h, idx){ if(vals[idx]!==undefined) obj[h] = vals[idx].trim(); });
       if(!obj.cedula) continue;
+      // Normalizar campos JSON antes de guardar
+      normalizarCamposJSON(obj);
       var existIdx = DB.findIndex(function(w){ return w.cedula===obj.cedula; });
       if(existIdx >= 0){
-        Object.keys(obj).forEach(function(k){ if(obj[k]) DB[existIdx][k] = obj[k]; });
+        Object.keys(obj).forEach(function(k){ if(obj[k]!==undefined) DB[existIdx][k] = obj[k]; });
+        normalizarCamposJSON(DB[existIdx]);
         registrosAfectados.push(DB[existIdx]);
         actualizados++;
       } else {
@@ -4104,9 +4174,9 @@ function renderPostgrados(){
   var el=document.getElementById('postgrados_lista'); if(!el) return;
   el.innerHTML=_postgradosData.map(function(p,i){
     return '<div style="display:grid;grid-template-columns:1fr 1fr 80px 30px;gap:6px;margin-bottom:6px;align-items:end">'+
-      '<div class="fld"><div class="flabel">Título</div><input type="text" value="'+(p.titulo||'')+'" onchange="_postgradosData['+i+'].titulo=this.value" placeholder="Ej: Especialización en SST"></div>'+
-      '<div class="fld"><div class="flabel">Institución</div><input type="text" value="'+(p.institucion||'')+'" onchange="_postgradosData['+i+'].institucion=this.value" placeholder="Universidad"></div>'+
-      '<div class="fld"><div class="flabel">Año</div><input type="number" value="'+(p.anio||'')+'" onchange="_postgradosData['+i+'].anio=this.value" placeholder="2020"></div>'+
+      '<div class="fld"><div class="flabel">Título</div><input type="text" value="'+(p.titulo||'')+'" oninput="_postgradosData['+i+'].titulo=this.value" placeholder="Ej: Especialización en SST"></div>'+
+      '<div class="fld"><div class="flabel">Institución</div><input type="text" value="'+(p.institucion||'')+'" oninput="_postgradosData['+i+'].institucion=this.value" placeholder="Universidad"></div>'+
+      '<div class="fld"><div class="flabel">Año</div><input type="number" value="'+(p.anio||'')+'" oninput="_postgradosData['+i+'].anio=this.value" placeholder="2020"></div>'+
       '<button class="btn btn-danger btn-xs" onclick="_postgradosData.splice('+i+',1);renderPostgrados()">✕</button>'+
     '</div>';
   }).join('');
@@ -4119,8 +4189,8 @@ function renderTarPro(){
   var el=document.getElementById('tarpro_lista'); if(!el) return;
   el.innerHTML=_tarProData.map(function(t,i){
     return '<div style="display:grid;grid-template-columns:1fr 1fr 120px 30px;gap:6px;margin-bottom:6px;align-items:end">'+
-      '<div class="fld"><div class="flabel">Tipo</div><input type="text" value="'+(t.tipo||'')+'" onchange="_tarProData['+i+'].tipo=this.value" placeholder="Tarjeta profesional / Licencia"></div>'+
-      '<div class="fld"><div class="flabel">Número</div><input type="text" value="'+(t.numero||'')+'" onchange="_tarProData['+i+'].numero=this.value" placeholder="Número"></div>'+
+      '<div class="fld"><div class="flabel">Tipo</div><input type="text" value="'+(t.tipo||'')+'" oninput="_tarProData['+i+'].tipo=this.value" placeholder="Tarjeta profesional / Licencia"></div>'+
+      '<div class="fld"><div class="flabel">Número</div><input type="text" value="'+(t.numero||'')+'" oninput="_tarProData['+i+'].numero=this.value" placeholder="Número"></div>'+
       '<div class="fld"><div class="flabel">Expedición</div><input type="date" value="'+(t.fechaExp||'')+'" onchange="_tarProData['+i+'].fechaExp=this.value"></div>'+
       '<button class="btn btn-danger btn-xs" onclick="_tarProData.splice('+i+',1);renderTarPro()">✕</button>'+
     '</div>';
@@ -4135,9 +4205,9 @@ function renderCursos(){
   el.innerHTML=_cursosData.map(function(c,i){
     return '<div style="display:grid;grid-template-columns:100px 1fr 1fr 80px 30px;gap:6px;margin-bottom:6px;align-items:end">'+
       '<div class="fld"><div class="flabel">Tipo</div><select onchange="_cursosData['+i+'].tipo=this.value"><option'+(c.tipo==='Curso'?' selected':'')+'>Curso</option><option'+(c.tipo==='Diplomado'?' selected':'')+'>Diplomado</option><option'+(c.tipo==='Certificación'?' selected':'')+'>Certificación</option></select></div>'+
-      '<div class="fld"><div class="flabel">Nombre</div><input type="text" value="'+(c.nombre||'')+'" onchange="_cursosData['+i+'].nombre=this.value" placeholder="Nombre del curso"></div>'+
-      '<div class="fld"><div class="flabel">Institución</div><input type="text" value="'+(c.inst||'')+'" onchange="_cursosData['+i+'].inst=this.value" placeholder="Entidad"></div>'+
-      '<div class="fld"><div class="flabel">Año</div><input type="number" value="'+(c.anio||'')+'" onchange="_cursosData['+i+'].anio=this.value" placeholder="2023"></div>'+
+      '<div class="fld"><div class="flabel">Nombre</div><input type="text" value="'+(c.nombre||'')+'" oninput="_cursosData['+i+'].nombre=this.value" placeholder="Nombre del curso"></div>'+
+      '<div class="fld"><div class="flabel">Institución</div><input type="text" value="'+(c.inst||'')+'" oninput="_cursosData['+i+'].inst=this.value" placeholder="Entidad"></div>'+
+      '<div class="fld"><div class="flabel">Año</div><input type="number" value="'+(c.anio||'')+'" oninput="_cursosData['+i+'].anio=this.value" placeholder="2023"></div>'+
       '<button class="btn btn-danger btn-xs" onclick="_cursosData.splice('+i+',1);renderCursos()">✕</button>'+
     '</div>';
   }).join('');
@@ -4150,7 +4220,7 @@ function renderIdiomas(){
   var el=document.getElementById('idiomas_lista'); if(!el) return;
   el.innerHTML=_idiomasData.map(function(d,i){
     return '<div style="display:grid;grid-template-columns:1fr 1fr 30px;gap:6px;margin-bottom:6px;align-items:end">'+
-      '<div class="fld"><div class="flabel">Idioma</div><input type="text" value="'+(d.idioma||'')+'" onchange="_idiomasData['+i+'].idioma=this.value" placeholder="Ej: Inglés"></div>'+
+      '<div class="fld"><div class="flabel">Idioma</div><input type="text" value="'+(d.idioma||'')+'" oninput="_idiomasData['+i+'].idioma=this.value" placeholder="Ej: Inglés"></div>'+
       '<div class="fld"><div class="flabel">Nivel</div><select onchange="_idiomasData['+i+'].nivel=this.value"><option value="">— —</option><option'+(d.nivel==='Básico'?' selected':'')+'>Básico</option><option'+(d.nivel==='Intermedio'?' selected':'')+'>Intermedio</option><option'+(d.nivel==='Avanzado'?' selected':'')+'>Avanzado</option><option'+(d.nivel==='Nativo'?' selected':'')+'>Nativo</option></select></div>'+
       '<button class="btn btn-danger btn-xs" onclick="_idiomasData.splice('+i+',1);renderIdiomas()">✕</button>'+
     '</div>';
@@ -4164,11 +4234,11 @@ function renderHijos(){
   var el=document.getElementById('hijos_tabla'); if(!el) return;
   el.innerHTML=_hijosData.map(function(h,i){
     return '<div style="display:grid;grid-template-columns:1fr 110px 90px 100px 1fr 30px;gap:6px;margin-bottom:6px;align-items:end">'+
-      '<div class="fld"><div class="flabel">Nombre</div><input type="text" value="'+(h.nombre||'')+'" onchange="_hijosData['+i+'].nombre=this.value" placeholder="Nombre"></div>'+
+      '<div class="fld"><div class="flabel">Nombre</div><input type="text" value="'+(h.nombre||'')+'" oninput="_hijosData['+i+'].nombre=this.value" placeholder="Nombre"></div>'+
       '<div class="fld"><div class="flabel">F. Nac.</div><input type="date" value="'+(h.fnac||'')+'" onchange="_hijosData['+i+'].fnac=this.value"></div>'+
       '<div class="fld"><div class="flabel">Género</div><select onchange="_hijosData['+i+'].genero=this.value"><option value="">—</option><option'+(h.genero==='M'?' selected':'')+'>M</option><option'+(h.genero==='F'?' selected':'')+'>F</option></select></div>'+
       '<div class="fld"><div class="flabel">Nivel</div><select onchange="_hijosData['+i+'].nivel=this.value"><option value="">—</option><option'+(h.nivel==='Preescolar'?' selected':'')+'>Preescolar</option><option'+(h.nivel==='Primaria'?' selected':'')+'>Primaria</option><option'+(h.nivel==='Bachillerato'?' selected':'')+'>Bachillerato</option><option'+(h.nivel==='Universidad'?' selected':'')+'>Universidad</option><option'+(h.nivel==='Trabaja'?' selected':'')+'>Trabaja</option></select></div>'+
-      '<div class="fld"><div class="flabel">Colegio</div><input type="text" value="'+(h.colegio||'')+'" onchange="_hijosData['+i+'].colegio=this.value" placeholder="Institución"></div>'+
+      '<div class="fld"><div class="flabel">Colegio</div><input type="text" value="'+(h.colegio||'')+'" oninput="_hijosData['+i+'].colegio=this.value" placeholder="Institución"></div>'+
       '<button class="btn btn-danger btn-xs" onclick="_hijosData.splice('+i+',1);renderHijos()">✕</button>'+
     '</div>';
   }).join('');
