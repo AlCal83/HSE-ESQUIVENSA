@@ -2417,11 +2417,16 @@ function guardarFormulario(){
 
   // Guardar en Sheets
   var url = getScriptUrl();
+  // Asegurar que campos vacíos se incluyan explícitamente
   var payload = Object.assign({accion:'guardarEncuesta'}, datos);
+  var params = new URLSearchParams();
+  Object.keys(payload).forEach(function(k){
+    params.append(k, payload[k] !== undefined && payload[k] !== null ? payload[k] : '');
+  });
 
   document.getElementById('saveStatus').textContent = '⏳ Guardando en Sheets...';
 
-  fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) })
+  fetch(url, { method:'POST', body:params })
     .then(function(r){ return r.json(); })
     .then(function(json){
       if(json.ok){
@@ -3259,8 +3264,12 @@ function importarCSV(inp){
         return;
       }
       var datos = registrosAfectados[idx];
-      var payload2 = Object.assign({accion:'guardarEncuesta'}, datos);
-      fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload2) })
+      var params2 = new URLSearchParams();
+      Object.keys(datos).forEach(function(k){
+        params2.append(k, datos[k] !== undefined && datos[k] !== null ? datos[k] : '');
+      });
+      params2.append('accion','guardarEncuesta');
+      fetch(url, { method:'POST', body:params2 })
         .then(function(r){ return r.json(); })
         .then(function(json){
           if(json.ok) enviados++; else errores++;
