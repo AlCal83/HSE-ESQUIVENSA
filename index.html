@@ -2141,6 +2141,12 @@ window.addEventListener('DOMContentLoaded', function(){
   document.getElementById('fDateLbl').textContent = hoy();
   document.getElementById('dashDate').textContent = hoy();
   poblarDatalists();
+  // Cargar config desde Sheets en segundo plano (sin bloquear)
+  cargarConfigDesdeSheets(function(){
+    aplicarConfig();
+    renderConfig();
+    renderDash();
+  });
 });
 
 // ─── LOCALSTORAGE ──────────────────────────────────────────────
@@ -2982,17 +2988,18 @@ function barChart(id, data){
 function cargarDesdeSheets(){
   var url = getScriptUrl();
   if(!url){ toast('Configure la URL del script primero','err'); return; }
-  toast('☁️ Conectando con Sheets…');
-  fetch(url, {
-    method:'POST',
-    body: new URLSearchParams({ accion:'leerTrabajadores' })
-  })
+  toast('☁️ Cargando encuestas completas desde Sheets…');
+
+  // Paso 1: leer encuestas completas (Sociodemografico)
+  fetch(url, { method:'POST', body: new URLSearchParams({ accion:'leerEncuestas' }) })
   .then(function(r){ return r.json(); })
   .then(function(j){
     if(!j.ok){ toast('⚠️ Error: '+(j.error||'desconocido'),'err'); return; }
     var nuevos=0, actualizados=0;
     (j.registros||[]).forEach(function(w){
       if(!w.cedula) return;
+      // Normalizar campos JSON
+      normalizarCamposJSON(w);
       var idx = DB.findIndex(function(x){ return String(x.cedula)===String(w.cedula); });
       if(idx>=0){ DB[idx]=Object.assign(DB[idx],w); actualizados++; }
       else { DB.push(w); nuevos++; }
@@ -3001,9 +3008,54 @@ function cargarDesdeSheets(){
     poblarSelectTrabajadores();
     renderDB();
     renderDash();
-    toast('✅ '+nuevos+' nuevos · '+actualizados+' actualizados desde Sheets','ok');
+    toast('✅ '+nuevos+' nuevos · '+actualizados+' actualizados','ok');
   })
   .catch(function(){ toast('⚠️ Sin conexión a Sheets','err'); });
+}
+
+// ─── CARGAR CONFIGURACIÓN DESDE SHEETS ───────────────────────
+function cargarConfigDesdeSheets(callback){
+  var url = getScriptUrl();
+  if(!url){ if(callback) callback(); return; }
+  fetch(url, { method:'POST', body: new URLSearchParams({ accion:'leerConfiguracion' }) })
+  .then(function(r){ return r.json(); })
+  .then(function(j){
+    if(!j.ok || !j.config){ if(callback) callback(); return; }
+    var c = j.config;
+    if(c.nombre) CFG.nombre = c.nombre;
+    if(c.sigla)  CFG.sigla  = c.sigla;
+    if(c.logo)   CFG.logo   = c.logo;
+    if(c.cargos)        try{ CFG.cargos        = JSON.parse(c.cargos); }catch(e){}
+    if(c.empresas)      try{ CFG.empresas      = JSON.parse(c.empresas); }catch(e){}
+    if(c.areas)         try{ CFG.areas         = JSON.parse(c.areas); }catch(e){}
+    if(c.lugares)       try{ CFG.lugares       = JSON.parse(c.lugares); }catch(e){}
+    if(c.especialidades)try{ CFG.especialidades= JSON.parse(c.especialidades); }catch(e){}
+    guardarConfigLS();
+    aplicarConfig();
+    if(callback) callback();
+  })
+  .catch(function(){ if(callback) callback(); });
+}
+
+// ─── GUARDAR CONFIGURACIÓN EN SHEETS ─────────────────────────
+function guardarConfigEnSheets(){
+  var url = getScriptUrl();
+  if(!url) return;
+  var params = new URLSearchParams({
+    accion: 'guardarConfiguracion',
+    nombre: CFG.nombre || '',
+    sigla:  CFG.sigla  || '',
+    logo:   CFG.logo   || '',
+    cargos:         JSON.stringify(CFG.cargos||[]),
+    empresas:       JSON.stringify(CFG.empresas||[]),
+    areas:          JSON.stringify(CFG.areas||[]),
+    lugares:        JSON.stringify(CFG.lugares||[]),
+    especialidades: JSON.stringify(CFG.especialidades||[])
+  });
+  fetch(url, { method:'POST', body: params })
+    .then(function(r){ return r.json(); })
+    .then(function(j){ if(j.ok) toast('☁️ Configuración guardada en Sheets','ok'); })
+    .catch(function(){});
 }
 
 // ─── REGISTROS — Fase 4: filtros, paginación, CSV ────────────
@@ -3398,6 +3450,7 @@ function addItem(tipo, inputId){
   if(CFG[tipo].indexOf(val)>=0){ toast('Ya existe en la lista','err'); return; }
   CFG[tipo].push(val);
   guardarConfigLS();
+  guardarConfigEnSheets();
   inp.value='';
   renderConfig();
   aplicarConfig();
@@ -3406,6 +3459,7 @@ function addItem(tipo, inputId){
 function removeItem(tipo, idx){
   CFG[tipo].splice(idx,1);
   guardarConfigLS();
+  guardarConfigEnSheets();
   renderConfig();
   aplicarConfig();
   toast('Eliminado');
@@ -3462,6 +3516,7 @@ function guardarConfig(){
   CFG.sigla  = v('cfg_sigla_empresa');
   guardarConfigLS();
   aplicarConfig();
+  guardarConfigEnSheets();
   toast('✅ Configuración guardada','ok');
 }
 function cargarLogo(inp){
@@ -3476,7 +3531,13 @@ function cargarLogo(inp){
 function guardarUrlScript(){
   CFG.scriptUrl = v('gs_url_inp');
   guardarConfigLS();
-  toast('URL del script guardada','ok');
+  toast('URL del script guardada — cargando configuración…','ok');
+  // Cargar config desde Sheets inmediatamente
+  cargarConfigDesdeSheets(function(){
+    aplicarConfig();
+    renderConfig();
+    toast('✅ URL guardada y configuración cargada desde Sheets','ok');
+  });
 }
 
 // ─── BORRAR TODOS ─────────────────────────────────────────────
