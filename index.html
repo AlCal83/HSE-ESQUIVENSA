@@ -2243,7 +2243,11 @@ function getCks(gridId){
 }
 function setCks(gridId, valores){
   if(!valores) return;
-  var arr = typeof valores==='string' ? JSON.parse(valores||'[]') : valores;
+  var arr;
+  if(typeof valores==='string'){
+    try{ arr=JSON.parse(valores); }catch(e){ arr=[valores]; }
+  } else { arr=valores; }
+  if(!Array.isArray(arr)) arr=[arr];
   document.querySelectorAll('#'+gridId+' .ck-item').forEach(function(item){
     var v = item.querySelector('input').value;
     var on = arr.indexOf(v)>=0;
@@ -2749,7 +2753,10 @@ function setRadioVal(name, val){
 function safeParse(str){
   if(!str) return [];
   if(Array.isArray(str)) return str;
-  try{ return JSON.parse(str)||[]; } catch(e){ return []; }
+  try{
+    var r = JSON.parse(str);
+    return Array.isArray(r) ? r : (r ? [r] : []);
+  } catch(e){ return str ? [str] : []; }
 }
 function sv(id, val){
   var el = document.getElementById(id);
