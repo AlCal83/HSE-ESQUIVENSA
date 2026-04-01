@@ -2417,11 +2417,11 @@ function guardarFormulario(){
 
   // Guardar en Sheets
   var url = getScriptUrl();
-  var params = new URLSearchParams(Object.assign({accion:'guardarEncuesta'}, datos));
+  var payload = Object.assign({accion:'guardarEncuesta'}, datos);
 
   document.getElementById('saveStatus').textContent = '⏳ Guardando en Sheets...';
 
-  fetch(url, { method:'POST', body:params })
+  fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) })
     .then(function(r){ return r.json(); })
     .then(function(json){
       if(json.ok){
@@ -3259,8 +3259,8 @@ function importarCSV(inp){
         return;
       }
       var datos = registrosAfectados[idx];
-      var params = new URLSearchParams(Object.assign({accion:'guardarEncuesta'}, datos));
-      fetch(url, { method:'POST', body:params })
+      var payload2 = Object.assign({accion:'guardarEncuesta'}, datos);
+      fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload2) })
         .then(function(r){ return r.json(); })
         .then(function(json){
           if(json.ok) enviados++; else errores++;
