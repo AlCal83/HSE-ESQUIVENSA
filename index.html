@@ -587,6 +587,7 @@ tbody td{padding:8px 12px;vertical-align:middle}
   <button class="tab"     id="tab-emo"    onclick="showTab('emo');renderEMO()">🏥 Exámenes</button>
   <button class="tab"     id="tab-alturas" onclick="showTab('alturas');renderAlturas()">🧗 Alturas</button>
   <button class="tab"     id="tab-confinados" onclick="showTab('confinados');renderConfinados()">⚠️ Confinados</button>
+  <button class="tab"     id="tab-cap"        onclick="showTab('cap');renderCAP()">🎓 Capacitaciones</button>
   <button class="tab"     id="tab-config" onclick="showTab('config');renderConfig()">⚙️ Configuración</button>
 </div>
 
@@ -637,6 +638,22 @@ tbody td{padding:8px 12px;vertical-align:middle}
     <div class="dash-card"><div class="dc-title">🏋️ Actividad física</div><div id="dActFisica"></div></div>
     <div class="dash-card"><div class="dc-title">👔 Tipo de contrato</div><div id="dContrato"></div></div>
     <div class="dash-card"><div class="dc-title">📍 Estrato socioeconómico</div><div id="dEstrato"></div></div>
+  </div>
+
+  <!-- 🎄 Reporte Hijos Navidad -->
+  <div class="dash-card" style="margin-bottom:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <div>
+        <div class="dc-title" style="margin-bottom:2px">🎄 Hijos de trabajadores — Segmentos navidad</div>
+        <div style="font-size:11.5px;color:var(--ink3)">Solo trabajadores activos con encuesta completa · <span id="dash_hijos_total" style="font-weight:600">0</span> hijos registrados</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="exportHijosNavidad()">⬇ Exportar Excel</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px" id="dash_hijos_segmentos">
+    </div>
+    <div id="dash_hijos_empty" style="display:none;font-size:12px;color:var(--ink3);padding:8px 0">
+      Sin datos de hijos. Completa la sección V (Familia) en las encuestas.
+    </div>
   </div>
 
   <!-- Tabla resumen búsqueda -->
@@ -694,6 +711,10 @@ tbody td{padding:8px 12px;vertical-align:middle}
             <div id="phTxt" style="font-size:10px;color:var(--ink3)">Cargar foto</div>
           </div>
           <input type="file" id="phInp" accept="image/*" style="display:none" onchange="cargarFoto(this)">
+          <div style="margin-top:5px">
+            <div class="flabel" style="margin-bottom:2px">Link foto (Drive)</div>
+            <input type="text" id="f_foto_link" placeholder="https://drive.google.com/..." style="font-size:10px;width:110px" oninput="actualizarFotoLink(this.value)">
+          </div>
         </div>
         <div>
           <div class="flabel" style="margin-bottom:4px">Código</div>
@@ -1738,7 +1759,8 @@ tbody td{padding:8px 12px;vertical-align:middle}
     </div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-ghost btn-sm" onclick="exportEMOCSV()">⬇ CSV</button>
-      <button class="btn btn-ghost btn-sm" onclick="sincronizarModulo('emo')" title="Subir todos los registros locales a Sheets">☁️ Sincronizar</button>
+      <button class="btn btn-ghost btn-sm" onclick="sincronizarModulo('emo')" title="Subir registros locales a Sheets">☁️ Subir</button>
+      <button class="btn btn-secondary btn-sm" onclick="cargarModuloDesdeSheets('emo')" title="Descargar registros desde Sheets">📥 Cargar</button>
       <button class="btn btn-primary btn-sm" onclick="abrirModalEMO()">＋ Registrar examen</button>
     </div>
   </div>
@@ -1850,7 +1872,8 @@ tbody td{padding:8px 12px;vertical-align:middle}
     </div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-ghost btn-sm" onclick="exportCertCSV('alt')">⬇ CSV</button>
-      <button class="btn btn-ghost btn-sm" onclick="sincronizarModulo('alt')" title="Subir todos a Sheets">☁️ Sincronizar</button>
+      <button class="btn btn-ghost btn-sm" onclick="sincronizarModulo('alt')" title="Subir todos a Sheets">☁️ Subir</button>
+      <button class="btn btn-secondary btn-sm" onclick="cargarModuloDesdeSheets('alt')" title="Descargar registros desde Sheets">📥 Cargar</button>
       <button class="btn btn-primary btn-sm" onclick="abrirModalCert('alt')">＋ Nueva certificación</button>
     </div>
   </div>
@@ -1882,7 +1905,8 @@ tbody td{padding:8px 12px;vertical-align:middle}
     </div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-ghost btn-sm" onclick="exportCertCSV('con')">⬇ CSV</button>
-      <button class="btn btn-ghost btn-sm" onclick="sincronizarModulo('con')" title="Subir todos a Sheets">☁️ Sincronizar</button>
+      <button class="btn btn-ghost btn-sm" onclick="sincronizarModulo('con')" title="Subir todos a Sheets">☁️ Subir</button>
+      <button class="btn btn-secondary btn-sm" onclick="cargarModuloDesdeSheets('con')" title="Descargar registros desde Sheets">📥 Cargar</button>
       <button class="btn btn-primary btn-sm" onclick="abrirModalCert('con')">＋ Nueva certificación</button>
     </div>
   </div>
@@ -1953,6 +1977,206 @@ tbody td{padding:8px 12px;vertical-align:middle}
   </div>
 </div>
 
+
+<!-- ═══════════════════════════════════════════════
+     VISTA: CAPACITACIONES
+═══════════════════════════════════════════════ -->
+<div class="view" id="view-cap">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+    <div>
+      <div style="font-family:var(--fs);font-size:22px">🎓 Capacitaciones</div>
+      <div style="font-size:12px;color:var(--ink3);margin-top:2px">SG-SST · <span id="cap_total">0</span> registros · <span id="cap_venc" style="color:#c0392b;font-weight:600">0 vencidos</span> · <span id="cap_prox90" style="color:var(--yel);font-weight:600">0 próx. 90d</span></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="exportCAPCSV()">⬇ CSV</button>
+      <button class="btn btn-ghost btn-sm" onclick="sincronizarModulo('cap')" title="Subir registros locales a Sheets">☁️ Subir</button>
+      <button class="btn btn-secondary btn-sm" onclick="cargarModuloDesdeSheets('cap')" title="Descargar registros desde Sheets">📥 Cargar</button>
+      <button class="btn btn-primary btn-sm" onclick="abrirModalCAP()">＋ Registrar capacitación</button>
+    </div>
+  </div>
+  <!-- Filtros -->
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <input id="cap_search" style="width:220px;font-size:12px" placeholder="🔍 Nombre, cédula o tema…" oninput="renderCAP()">
+    <select id="cap_tipo_f" onchange="renderCAP()" style="font-size:12px">
+      <option value="">Todos los tipos</option>
+      <option value="Inducción">Inducción</option>
+      <option value="Reinducción">Reinducción</option>
+      <option value="SST">SST</option>
+      <option value="Brigadas">Brigadas</option>
+      <option value="Manejo de residuos">Manejo de residuos</option>
+      <option value="EPP">EPP</option>
+      <option value="Emergencias">Emergencias</option>
+      <option value="Otro">Otro</option>
+    </select>
+    <select id="cap_estado_f" onchange="renderCAP()" style="font-size:12px">
+      <option value="">Todos los estados</option>
+      <option value="vigente">Vigente</option>
+      <option value="prox90">Próx. 90 días</option>
+      <option value="prox30">Próx. 30 días</option>
+      <option value="vencido">Vencido</option>
+      <option value="sin_fecha">Sin vencimiento</option>
+    </select>
+    <select id="cap_aprobado_f" onchange="renderCAP()" style="font-size:12px">
+      <option value="">Aprobado / No</option>
+      <option value="SI">✅ Aprobado</option>
+      <option value="NO">❌ No aprobado</option>
+    </select>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Trabajador</th>
+        <th>Tema / Curso</th>
+        <th>Tipo</th>
+        <th>Fecha</th>
+        <th>Horas</th>
+        <th>Entidad</th>
+        <th>Vencimiento</th>
+        <th>Estado</th>
+        <th>Aprobado</th>
+        <th>Acciones</th>
+      </tr></thead>
+      <tbody id="cap_tbody"></tbody>
+    </table>
+  </div>
+  <div id="cap_empty" style="display:none;text-align:center;padding:40px;color:var(--ink3);font-size:13px">
+    Sin registros de capacitación. Usa el botón <strong>＋ Registrar capacitación</strong>.
+  </div>
+</div>
+
+<!-- MODAL CAPACITACIÓN -->
+<div id="modalCAP" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.4);align-items:center;justify-content:center">
+  <div style="background:var(--sur);border-radius:var(--r);padding:0;width:100%;max-width:620px;max-height:92vh;overflow-y:auto;box-shadow:var(--sh2)">
+    <div style="padding:18px 22px;border-bottom:1px solid var(--bor);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--sur);z-index:2">
+      <div style="font-family:var(--fs);font-size:17px" id="modalCAPTitle">Registrar capacitación</div>
+      <button onclick="cerrarModalCAP()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink3)">✕</button>
+    </div>
+    <div style="padding:18px 22px">
+      <input type="hidden" id="cap_edit_idx">
+      <div class="fgrid" style="grid-template-columns:1fr 1fr;gap:10px">
+
+        <!-- Trabajador -->
+        <div class="fld" style="grid-column:1/-1">
+          <div class="flabel">Trabajador *</div>
+          <select id="cap_trabajador" style="width:100%"><option value="">— Seleccione —</option></select>
+        </div>
+
+        <!-- Tema / Curso -->
+        <div class="fld" style="grid-column:1/-1">
+          <div class="flabel">Tema / Nombre del curso *</div>
+          <input id="cap_tema" type="text" placeholder="Ej: Uso y manejo de EPP, Trabajo seguro en alturas…" style="width:100%">
+        </div>
+
+        <!-- Tipo y modalidad -->
+        <div class="fld">
+          <div class="flabel">Tipo *</div>
+          <select id="cap_tipo" style="width:100%">
+            <option value="">Seleccione…</option>
+            <option>Inducción</option>
+            <option>Reinducción</option>
+            <option>SST</option>
+            <option>Brigadas</option>
+            <option>Manejo de residuos</option>
+            <option>EPP</option>
+            <option>Emergencias</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="fld">
+          <div class="flabel">Modalidad</div>
+          <select id="cap_modalidad" style="width:100%">
+            <option value="">Seleccione…</option>
+            <option>Presencial</option>
+            <option>Virtual</option>
+            <option>Mixta</option>
+          </select>
+        </div>
+
+        <!-- Fecha y horas -->
+        <div class="fld">
+          <div class="flabel">Fecha de realización *</div>
+          <input id="cap_fecha" type="date" onchange="capCalcVenc()">
+        </div>
+        <div class="fld">
+          <div class="flabel">Duración (horas)</div>
+          <input id="cap_horas" type="number" min="0.5" step="0.5" placeholder="Ej: 4">
+        </div>
+
+        <!-- Entidad y facilitador -->
+        <div class="fld">
+          <div class="flabel">Entidad / Facilitador</div>
+          <input id="cap_entidad" type="text" placeholder="SENA, ARL, Empresa…">
+        </div>
+        <div class="fld">
+          <div class="flabel">Facilitador interno</div>
+          <input id="cap_facilitador" type="text" placeholder="Nombre del instructor">
+        </div>
+
+        <!-- Vencimiento: toggle -->
+        <div class="fld" style="grid-column:1/-1">
+          <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;cursor:pointer;padding:8px;background:var(--bg);border-radius:var(--r2);border:1px solid var(--bor)">
+            <input type="checkbox" id="cap_tiene_venc" onchange="capToggleVenc()">
+            <span>⏱ Esta capacitación tiene fecha de vencimiento / requiere renovación</span>
+          </label>
+        </div>
+        <div id="cap_venc_wrap" style="display:none;grid-column:1/-1">
+          <div class="fgrid" style="grid-template-columns:1fr 1fr;gap:10px">
+            <div class="fld">
+              <div class="flabel">Vigencia (meses)</div>
+              <input id="cap_vig_meses" type="number" min="1" max="120" placeholder="Ej: 12" oninput="capCalcVenc()">
+            </div>
+            <div class="fld">
+              <div class="flabel">Fecha de vencimiento (auto)</div>
+              <input id="cap_vencimiento" type="date" readonly style="background:var(--bg)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Aprobado y nota -->
+        <div class="fld">
+          <div class="flabel">¿Aprobado?</div>
+          <select id="cap_aprobado" style="width:100%">
+            <option value="">—</option>
+            <option value="SI">✅ Sí</option>
+            <option value="NO">❌ No</option>
+          </select>
+        </div>
+        <div class="fld">
+          <div class="flabel">Nota / Calificación</div>
+          <input id="cap_nota" type="text" placeholder="Ej: 4.5, Sobresaliente, Aprobado…">
+        </div>
+
+        <!-- Soporte -->
+        <div class="fld" style="grid-column:1/-1">
+          <div class="flabel">Link soporte / certificado (URL o referencia)</div>
+          <input id="cap_soporte" type="text" placeholder="https://… o referencia del archivo físico">
+        </div>
+
+        <!-- Observaciones -->
+        <div class="fld" style="grid-column:1/-1">
+          <div class="flabel">Observaciones</div>
+          <textarea id="cap_obs" rows="2" style="width:100%" placeholder="Temas cubiertos, novedades, etc."></textarea>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+        <button class="btn btn-ghost btn-sm" onclick="cerrarModalCAP()">Cancelar</button>
+        <button class="btn btn-primary btn-sm" onclick="guardarCAP()">💾 Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL HISTORIAL CAPACITACIONES -->
+<div id="historialCAP" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.5);align-items:center;justify-content:center">
+  <div style="background:var(--sur);border-radius:var(--r);width:100%;max-width:580px;max-height:88vh;overflow-y:auto;box-shadow:var(--sh2)">
+    <div style="padding:14px 18px;border-bottom:1px solid var(--bor);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--sur)">
+      <div style="font-family:var(--fs);font-size:16px" id="histCAPTitle">Historial capacitaciones</div>
+      <button onclick="cerrarHistCAP()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink3)">✕</button>
+    </div>
+    <div style="padding:14px 18px" id="histCAPBody"></div>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════════════════════
      VISTA: CONFIGURACIÓN
 ═══════════════════════════════════════════════ -->
@@ -1974,6 +2198,15 @@ tbody td{padding:8px 12px;vertical-align:middle}
       </div>
       <button class="btn btn-ghost btn-sm" onclick="guardarUrlScript()">💾 Guardar URL</button>
     </div>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-bottom:12px;margin-top:8px">
+      <div class="fld" style="margin:0">
+        <div class="flabel">ID carpeta Google Drive (fotos trabajadores)</div>
+        <input type="text" id="gs_drive_folder" placeholder="1jl-uXrNRqFsOGR540jVHzbnV-28xiSRh"
+          oninput="CFG.driveFolderId=this.value.trim()">
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="guardarDriveFolderId()">💾 Guardar</button>
+    </div>
+    <div style="font-size:11px;color:var(--ink3);margin-bottom:10px">📸 Fotos nombradas por cédula: <code>72285156.jpg</code> · Solo JPG · Carpeta debe ser pública</div>
     <div style="font-size:11.5px;color:var(--ink3)">
       📋 Script: <strong>HSE_Script_EQI</strong> · Sheets: <strong>HSE_Dashboard_EQI</strong> · Versión: <strong>v1.5 — 2026-03-31</strong>
     </div>
@@ -2101,6 +2334,7 @@ function getScriptUrl(){
 var DB  = [];   // Array de trabajadores (localStorage)
 var CFG = {     // Configuración
   scriptUrl    : '',
+  driveFolderId: '1jl-uXrNRqFsOGR540jVHzbnV-28xiSRh', // ID carpeta Drive fotos
   nombre       : 'Especialidades Químicas Industriales SAS',
   sigla        : 'ESQUIVENSA',
   logo         : '',
@@ -2139,6 +2373,7 @@ window.addEventListener('DOMContentLoaded', function(){
   renderEMO();
   renderAlturas();
   renderConfinados();
+  renderCAP();
   document.getElementById('fDateLbl').textContent = hoy();
   document.getElementById('dashDate').textContent = hoy();
   poblarDatalists();
@@ -2595,7 +2830,8 @@ function recolectarDatos(){
     respEncuestaNombre: v('f_respEncuestaNombre'),
     respEncuestaCargo: v('f_respEncuestaCargo'),
     estado      : 'Activo',
-    _fotoLocal  : _fotoLocal
+    _fotoLocal  : _fotoLocal,
+    foto_link   : v('f_foto_link')
   };
 }
 
@@ -2604,6 +2840,9 @@ function cargarTrabajador(cedula){
   if(!cedula){ limpiarFormulario(); return; }
   var w = DB.find(function(x){ return x.cedula===cedula; });
   if(!w) return;
+  // Mostrar botón Cancelar siempre que se carga un registro existente
+  var btnC = document.getElementById('btnCancelar');
+  if(btnC) btnC.style.display = 'inline-flex';
   // I
   sv('f_tipoDoc',w.tipoDoc); sv('f_cedula',w.cedula);
   sv('f_expedida_en',w.expedida_en); sv('f_nombre1',w.nombre1);
@@ -2721,10 +2960,14 @@ function cargarTrabajador(cedula){
   sv('f_respEncuestaNombre',w.respEncuestaNombre);
   sv('f_respEncuestaCargo',w.respEncuestaCargo);
   // Foto
-  if(w._fotoLocal){
-    _fotoLocal = w._fotoLocal;
-    document.getElementById('phbox').innerHTML = '<img src="'+_fotoLocal+'">';
+  var fotoSrc = w._fotoLocal || (w.foto_link ? _driveImgUrl(w.foto_link) : '') || '';
+  if(fotoSrc){
+    _fotoLocal = fotoSrc;
+    document.getElementById('phbox').innerHTML = '<img src="'+fotoSrc+'" onerror="this.style.display=\'none\'">'; 
   }
+  // Cargar foto_link en campo de texto
+  var flInp = document.getElementById('f_foto_link');
+  if(flInp) flInp.value = w.foto_link || '';
   updateNombreCompleto();
   updateProg();
   // Actualizar firmas
@@ -2776,7 +3019,6 @@ function sv(id, val){
   // Para selects: intentar match exacto primero, luego case-insensitive
   if(el.tagName === 'SELECT'){
     el.value = val;
-    // Si no matcheó, buscar opción case-insensitive
     if(el.value !== val){
       var valLow = String(val).toLowerCase().trim();
       Array.from(el.options).forEach(function(opt){
@@ -2785,6 +3027,30 @@ function sv(id, val){
         }
       });
     }
+  } else if(el.type === 'date'){
+    // Normalizar a YYYY-MM-DD — acepta DD/MM/YYYY, DD-MM-YYYY, YYYY/MM/DD, timestamps
+    var s = String(val).trim();
+    if(s){
+      var iso = '';
+      // Ya está en YYYY-MM-DD
+      if(/^\d{4}-\d{2}-\d{2}$/.test(s)){
+        iso = s;
+      // DD/MM/YYYY o DD-MM-YYYY
+      } else if(/^\d{2}[\/\-]\d{2}[\/\-]\d{4}$/.test(s)){
+        var p = s.split(/[\/\-]/);
+        iso = p[2]+'-'+p[1]+'-'+p[0];
+      // YYYY/MM/DD
+      } else if(/^\d{4}[\/]\d{2}[\/]\d{2}$/.test(s)){
+        iso = s.replace(/\//g,'-');
+      } else {
+        // Intentar parsear con Date
+        var d = new Date(s);
+        if(!isNaN(d)){
+          iso = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+        }
+      }
+      el.value = iso;
+    }
   } else {
     el.value = val;
   }
@@ -2792,6 +3058,50 @@ function sv(id, val){
 function setRadioVal(name, val){
   var r = document.querySelector('input[name="'+name+'"][value="'+val+'"]');
   if(r){ r.checked=true; setRadio(name); }
+}
+
+// ─── ACTUALIZAR FOTO LINK DESDE CAMPO DE TEXTO ───────────────
+function _driveImgUrl(url){
+  // Convierte cualquier formato de link de Drive a URL de imagen directa
+  if(!url) return '';
+  // Ya es un thumbnail de Drive — dejar igual
+  if(url.includes('drive.google.com/thumbnail')) return url;
+  // Formato: /file/d/ID/view  o  /file/d/ID/preview  o  open?id=ID
+  var match = url.match(/(?:\/d\/|id=)([a-zA-Z0-9_-]{10,})/);
+  if(match) return 'https://drive.google.com/thumbnail?id='+match[1]+'&sz=w200-h260';
+  // Link de uc?export=view
+  var match2 = url.match(/[?&]id=([a-zA-Z0-9_-]{10,})/);
+  if(match2) return 'https://drive.google.com/thumbnail?id='+match2[1]+'&sz=w200-h260';
+  // Devolver tal cual (puede ser otro host)
+  return url;
+}
+
+function actualizarFotoLink(url){
+  url = (url||'').trim();
+  var box = document.getElementById('phbox');
+  if(!box) return;
+  if(!url){
+    if(!_fotoLocal || _fotoLocal.startsWith('http')){
+      _fotoLocal = '';
+      box.innerHTML = '<div id="phIcon" style="font-size:28px;opacity:.35">📷</div><div id="phTxt" style="font-size:10px;color:var(--ink3)">Cargar foto</div>';
+    }
+    return;
+  }
+  // Convertir link de Drive a URL de imagen directa
+  var imgUrl = _driveImgUrl(url);
+  _fotoLocal = imgUrl;
+  // Guardar la URL original en el campo para que se guarde en Sheets
+  var inp = document.getElementById('f_foto_link');
+  if(inp && inp.value === url) inp.value = url; // mantener original en el campo
+  var img = document.createElement('img');
+  img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:calc(var(--r) - 2px)';
+  img.src = imgUrl;
+  img.onerror = function(){
+    box.innerHTML = '<div style="font-size:9px;color:#c0392b;padding:4px;text-align:center">❌ Foto no disponible.<br>Verifica que sea pública.</div>';
+    _fotoLocal = '';
+  };
+  box.innerHTML = '';
+  box.appendChild(img);
 }
 
 // ─── NUEVA ENCUESTA ───────────────────────────────────────────
@@ -2845,6 +3155,7 @@ function limpiarFormulario(){
   _hijosData=[];      renderHijos();
   // Foto
   _fotoLocal = '';
+  var flInpL = document.getElementById('f_foto_link'); if(flInpL) flInpL.value = '';
   document.getElementById('phbox').innerHTML = '<div id="phIcon" style="font-size:28px;opacity:.35">📷</div><div id="phTxt" style="font-size:10px;color:var(--ink3)">Cargar foto</div>';
   // Strip y controles
   document.getElementById('workerStrip').style.display='none';
@@ -2919,6 +3230,9 @@ function renderDash(){
   barChart('dActFisica',{'Sí':DB.filter(function(w){return w.actFisica==='SI';}).length,'No':DB.filter(function(w){return w.actFisica==='NO';}).length});
   barChart('dContrato', contarPorActivos('tipoContrato'));
   barChart('dEstrato',  contarPorActivos('estrato'));
+
+  // Reporte hijos navidad
+  renderHijosNavidad();
 
   // Búsqueda
   var q = (document.getElementById('dashSearch')||{}).value||'';
@@ -3156,8 +3470,9 @@ function renderDB(){
   // Renderizar filas
   var html = pagina.map(function(w){
     var nombre = [w.nombre1,w.nombre2,w.apellido1,w.apellido2].filter(Boolean).join(' ');
-    var av = w._fotoLocal
-      ? '<div class="av"><img src="'+w._fotoLocal+'"></div>'
+    var avSrc = w._fotoLocal || (w.foto_link ? _driveImgUrl(w.foto_link) : '') || '';
+    var av = avSrc
+      ? '<div class="av"><img src="'+avSrc+'" onerror="this.style.display=\'none\'">'+'</div>'
       : '<div class="av">👤</div>';
     var tag = w.estado==='Inactivo'
       ? '<span class="tag tag-i">Inactivo</span>'
@@ -3476,6 +3791,7 @@ function renderConfig(){
   sv('cfg_nombre_empresa', CFG.nombre);
   sv('cfg_sigla_empresa',  CFG.sigla);
   sv('gs_url_inp', CFG.scriptUrl);
+  var driveInp = document.getElementById('gs_drive_folder'); if(driveInp) driveInp.value = CFG.driveFolderId||'';
   if(CFG.logo){
     document.getElementById('logo_preview').innerHTML = '<img src="'+CFG.logo+'" style="height:50px;border:1px solid var(--bor);border-radius:4px;padding:4px">';
   }
@@ -3587,6 +3903,18 @@ function guardarUrlScript(){
   });
 }
 
+// ─── GUARDAR ID CARPETA DRIVE ────────────────────────────────
+function guardarDriveFolderId(){
+  var val = (document.getElementById('gs_drive_folder')||{}).value||'';
+  // Extraer solo el ID si pegan la URL completa
+  var match = val.match(/folders\/([a-zA-Z0-9_-]+)/);
+  CFG.driveFolderId = match ? match[1] : val.trim();
+  if(document.getElementById('gs_drive_folder'))
+    document.getElementById('gs_drive_folder').value = CFG.driveFolderId;
+  guardarConfigLS();
+  toast('✅ ID de carpeta Drive guardado','ok');
+}
+
 // ─── BORRAR TODOS ─────────────────────────────────────────────
 function borrarTodosLosRegistros(){
   if(!confirm('⚠️ ¿Borrar TODOS los registros?\n\nEsta acción no se puede deshacer.\nLa configuración (listas, empresa) NO se borra.')) return;
@@ -3596,6 +3924,44 @@ function borrarTodosLosRegistros(){
   renderDB();
   renderDash();
   toast('Todos los registros borrados');
+}
+
+// ─── FOTO DESDE GOOGLE DRIVE ────────────────────────────────
+// Busca foto en Drive por cédula. El archivo debe llamarse {cedula}.jpg
+// en la carpeta configurada (pública). Devuelve URL de thumbnail directo.
+function getFotoDriveUrl(cedula){
+  var folderId = (CFG && CFG.driveFolderId) ? CFG.driveFolderId.trim() : '';
+  if(!folderId || !cedula) return '';
+  // URL de thumbnail directo via Google Drive API pública
+  // No requiere OAuth si la carpeta y el archivo son públicos
+  // Formato: https://drive.google.com/thumbnail?id=FILE_ID&sz=w200-h260
+  // Como no tenemos el ID del archivo individual (solo el ID de la carpeta),
+  // usamos el patrón de búsqueda por nombre embebido en un iframe oculto.
+  // Alternativa simple y robusta: link directo usando nombre de archivo conocido
+  // El archivo debe estar publicado/compartido públicamente con el link.
+  // Si el archivo {cedula}.jpg está en la carpeta pública, el thumbnail funciona
+  // via: https://lh3.googleusercontent.com/d/{FILE_ID} pero necesitamos el FILE_ID.
+  // Solución práctica: guardar foto_link en el registro del trabajador.
+  var w = DB.find(function(x){ return x.cedula === cedula; });
+  if(w && w.foto_link) return w.foto_link;
+  return '';
+}
+
+// Cargar foto de Drive en el formulario para el trabajador cargado
+function cargarFotoDrive(cedula){
+  var url = getFotoDriveUrl(cedula);
+  if(!url) return;
+  var box = document.getElementById('phbox');
+  if(!box) return;
+  _fotoLocal = url;
+  var img = document.createElement('img');
+  img.src = url;
+  img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:calc(var(--r) - 2px)';
+  img.onerror = function(){
+    box.innerHTML = '<div id="phIcon" style="font-size:28px;opacity:.35">📷</div><div style="font-size:10px;color:var(--ink3)">Sin foto</div>';
+  };
+  box.innerHTML = '';
+  box.appendChild(img);
 }
 
 // ─── IMPRIMIR ─────────────────────────────────────────────────
@@ -3613,7 +3979,9 @@ function abrirVistaPreviaFormulario(w){
   var cfg = CFG || {};
   var sigla = cfg.sigla || cfg.nombre || 'ESQUIVENSA';
   var logo = cfg.logo || '';
-  var fecha = w.fechaEncuesta || hoy();
+  var fechaRaw = w.fechaEncuesta || hoy();
+  var fmtF = function(s){if(!s||s==='—')return s;var d=new Date(s);if(isNaN(d))return s;return d.getDate().toString().padStart(2,'0')+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getFullYear();};
+  var fecha = fmtF(fechaRaw);
 
   var row = function(label, val){
     return '<div class="f"><div class="l">'+label+'</div><div class="v">'+(val||'—')+'</div></div>';
@@ -3629,8 +3997,9 @@ function abrirVistaPreviaFormulario(w){
     ? '<img src="'+logo+'" style="max-height:52px;max-width:100px;object-fit:contain">'
     : '<div style="font-size:13px;font-weight:700;color:#c4420a;text-align:center">'+sigla+'</div>';
 
-  var fotoHtml = w._fotoLocal
-    ? '<img src="'+w._fotoLocal+'" style="width:70px;height:90px;object-fit:cover;border:1px solid #ccc;border-radius:3px">'
+  var _fotoSrc = w._fotoLocal || (w.foto_link ? _driveImgUrl(w.foto_link) : '') || '';
+  var fotoHtml = _fotoSrc
+    ? '<img src="'+_fotoSrc+'" style="width:70px;height:90px;object-fit:cover;border:1px solid #ccc;border-radius:3px" onerror="this.style.display=\'none\'">'
     : '<div style="width:70px;height:90px;border:1px dashed #ccc;display:flex;align-items:center;justify-content:center;font-size:9px;color:#aaa;text-align:center;border-radius:3px">Sin<br>foto</div>';
 
   // Postgrados como texto
@@ -3651,27 +4020,27 @@ function abrirVistaPreviaFormulario(w){
 
   win.document.write('<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>FM-H&S-004 · '+w.nombre+'</title><style>'+
   '*{box-sizing:border-box;margin:0;padding:0}'+
-  'body{font-family:Arial,sans-serif;font-size:10.5px;color:#1a1714;background:#fff}'+
+  'body{font-family:Arial,sans-serif;font-size:10px;color:#1a1714;background:#fff}'+
   '.enc-table{width:100%;border-collapse:collapse;border:1.5px solid #555;margin-bottom:10px;table-layout:fixed}'+
   '.enc-table td{border:1px solid #555;vertical-align:middle;padding:4px 8px}'+
-  '.sec{margin-bottom:8px;border:1px solid #ddd;border-radius:3px;overflow:hidden;page-break-inside:avoid}'+
+  '.sec{margin-bottom:5px;border:1px solid #ddd;border-radius:3px;overflow:hidden;page-break-inside:avoid}'+
   '.sec-title{background:#f0f0f0;padding:4px 10px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#444}'+
-  '.sec-body{padding:7px 10px}'+
+  '.sec-body{padding:5px 8px}'+
   '.g2{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px}'+
   '.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px 12px}'+
   '.sa{grid-column:1/-1}'+
   '.f{margin-bottom:2px}.l{font-size:8px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.3px}'+
-  '.v{font-size:10.5px;border-bottom:1px solid #e8e8e8;min-height:15px;padding-bottom:1px}'+
-  '.firma-sec{display:flex;justify-content:space-around;margin-top:20px;padding-top:14px;border-top:1px dashed #ccc;page-break-inside:avoid}'+
+  '.v{font-size:10px;border-bottom:1px solid #e8e8e8;min-height:13px;padding-bottom:1px}'+
+  '.firma-sec{display:flex;justify-content:space-around;margin-top:10px;padding-top:10px;border-top:1px dashed #ccc;page-break-inside:avoid}'+
   '.firma-box{text-align:center;width:210px}'+
-  '.firma-line{border-top:1.5px solid #333;margin:44px 0 5px}'+
+  '.firma-line{border-top:1.5px solid #333;margin:28px 0 4px}'+
   '.firma-name{font-size:10px;font-weight:700}.firma-sub{font-size:9px;color:#666}'+
   '.consent{background:#fffbe6;border:1.5px solid #333;border-radius:3px;padding:8px 10px;font-size:9px;line-height:1.5;margin:12px 0 8px}'+
   '.no-aut{background:#fff0f0;border:1.5px solid #c0392b;border-radius:3px;padding:8px 10px;font-size:9px;line-height:1.5;margin:12px 0 8px}'+
   '.wrap-table{width:100%;border-collapse:collapse;table-layout:fixed}'+
   '.no-print{margin-bottom:8px}'+
-  '@media print{.no-print{display:none!important}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.wrap-table thead{display:table-header-group}.wrap-table tbody{display:table-row-group}.wrap-table thead td{padding:0 0 8px 0;border:none}.wrap-table tbody td{vertical-align:top;padding:0}}'+
-  '@page{size:A4 portrait;margin:15mm 15mm 20mm 15mm;@bottom-center{content:"Página " counter(page) " de " counter(pages) "  ·  COPIA NO CONTROLADA";font-size:7.5pt;font-family:Arial,sans-serif;color:#888}}'+
+  '@media print{.no-print{display:none!important}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.wrap-table thead{display:table-header-group}.wrap-table tbody{display:table-row-group}.wrap-table thead td{padding:0 0 8px 0;border:none}.wrap-table tbody td{vertical-align:top;padding:0}.bloque-final{page-break-inside:avoid!important;break-inside:avoid!important;margin-top:4px}.firma-sec{page-break-inside:avoid!important;break-inside:avoid!important;break-before:avoid!important}}'+
+  '@page{size:A4 portrait;margin:10mm 12mm 15mm 12mm;@bottom-center{content:"Página " counter(page) " de " counter(pages) "  ·  COPIA NO CONTROLADA";font-size:7pt;font-family:Arial,sans-serif;color:#888}}'+
   '</style></head><body>'+
 
   '<div class="no-print" style="display:flex;justify-content:flex-end;gap:8px;padding:8px 0 10px">'+
@@ -3691,7 +4060,7 @@ function abrirVistaPreviaFormulario(w){
   row('Tipo documento',w.tipoDoc)+row('N° identificación',w.cedula)+row('Expedida en',w.expedida_en)+
   row('Primer nombre',w.nombre1)+row('Segundo nombre',w.nombre2)+
   '<div></div>'+row('Primer apellido',w.apellido1)+row('Segundo apellido',w.apellido2)+
-  '<div></div>'+row('F. nacimiento',w.fnac)+row('Ciudad nacimiento',w.ciudad_nac)+row('Dpto. nacimiento',w.dpto_nac)+
+  '<div></div>'+row('F. nacimiento',fmtF(w.fnac))+row('Ciudad nacimiento',w.ciudad_nac)+row('Dpto. nacimiento',w.dpto_nac)+
   row('Raza / Etnia',w.etnia)+row('Edad',w._edad)+row('Sexo biológico',w.sexo)+
   row('Celular',w.celular)+row('Correo personal',w.email)+
   '</div><div class="g3" style="margin-top:4px">'+row('Contacto emergencia',w.contacto)+row('Parentesco',w.parentesco)+row('Tel. emergencia',w.telContacto)+
@@ -3702,7 +4071,7 @@ function abrirVistaPreviaFormulario(w){
   row('Empresa',w.empresa)+row('Cargo',w.cargo)+row('Nivel de riesgo',w.riesgo?'Nivel '+w.riesgo:'')+
   row('Lugar de trabajo',arr(w.lugarTrabajo))+row('Área de trabajo',w.area)+row('Especialidad',w.especialidad)+
   row('Tipo vinculación',w.vinculacion)+row('Tipo contrato',w.tipoContrato)+row('Horario / Turno',w.horario)+
-  row('F. ingreso',w.fechaIngreso)+row('Antigüedad',w._antig)+row('ARL',w.arl)+
+  row('F. ingreso',fmtF(w.fechaIngreso))+row('Antigüedad',w._antig)+row('ARL',w.arl)+
   row('EPS',w.eps)+row('AFP / Pensión',w.afp)+row('Rango salarial',w.salario)+
   '<div class="sa">'+row('Experiencia en el cargo',w.experiencia)+'</div>'+
   '</div></div>'+
@@ -3771,7 +4140,8 @@ function abrirVistaPreviaFormulario(w){
   '<div class="sa">'+row('Redes sociales',arr(w.redes))+'</div>'+
   '</div></div>'+
 
-  // === CONSENTIMIENTO ===
+  // === CONSENTIMIENTO + FIRMAS (bloque unido — nunca se separan) ===
+  '<div class="bloque-final">'+
   consentHtml+
   (w.observaciones?'<div class="sec"><div class="sec-title">Observaciones</div><div class="sec-body"><div class="v">'+w.observaciones+'</div></div></div>':'')+
 
@@ -3779,6 +4149,7 @@ function abrirVistaPreviaFormulario(w){
   '<div class="firma-sec">'+
   '<div class="firma-box"><div class="firma-line"></div><div class="firma-name">'+(w.nombre||'_________________________________')+'</div><div class="firma-sub">C.C. '+(w.cedula||'____________________')+'</div><div class="firma-sub" style="margin-top:2px">Firma del Trabajador</div><div class="firma-sub" style="margin-top:2px">Fecha: '+fecha+'</div></div>'+
   '<div class="firma-box"><div class="firma-line"></div><div class="firma-name">'+(w.respEncuestaNombre||'_________________________________')+'</div><div class="firma-sub">'+(w.respEncuestaCargo||'Responsable diligenciamiento')+'</div><div class="firma-sub" style="margin-top:2px">'+sigla+'</div><div class="firma-sub" style="margin-top:2px">Fecha: '+fecha+'</div></div>'+
+  '</div>'+
   '</div>'+
 
   '</td></tr></tbody></table></body></html>');
@@ -3797,6 +4168,7 @@ function cargarModulos(){
   try{ EMO_DATA = JSON.parse(localStorage.getItem(LS_EMO)) || []; } catch(e){ EMO_DATA=[]; }
   try{ ALT_DATA = JSON.parse(localStorage.getItem(LS_ALT)) || []; } catch(e){ ALT_DATA=[]; }
   try{ CON_DATA = JSON.parse(localStorage.getItem(LS_CON)) || []; } catch(e){ CON_DATA=[]; }
+  try{ CAP_DATA = JSON.parse(localStorage.getItem(LS_CAP)) || []; } catch(e){ CAP_DATA=[]; }
 }
 function guardarModulo(key, data){ localStorage.setItem(key, JSON.stringify(data)); }
 
@@ -4062,11 +4434,53 @@ function certCalcVencDesde(fecha, modulo){
   return d.toISOString().split('T')[0];
 }
 
+// ── Helper: cargar módulo completo desde Sheets ──────────────────
+function cargarModuloDesdeSheets(modulo){
+  var url = getScriptUrl();
+  if(!url){ toast('Configure la URL del script primero','err'); return; }
+  var hojaMap = { emo:'ExamenesMedicos', alt:'Alturas', con:'Confinados', cap:'Capacitaciones' };
+  var hoja = hojaMap[modulo];
+  if(!hoja){ toast('Módulo no reconocido','err'); return; }
+  toast('📥 Descargando '+hoja+' desde Sheets…');
+  fetch(url, {
+    method:'POST',
+    body: new URLSearchParams({ accion:'leerModulo', modulo: modulo, hoja: hoja })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(j){
+    if(!j.ok){ toast('⚠️ Error: '+(j.error||'desconocido'),'err'); return; }
+    var remotos = j.datos || [];
+    if(!remotos.length){ toast('No hay datos en Sheets para '+hoja,'err'); return; }
+    // Upsert por id (cedula+fecha+nivel o cedula+fecha+tipo)
+    var LOCAL = modulo==='emo' ? EMO_DATA : modulo==='alt' ? ALT_DATA : modulo==='con' ? CON_DATA : CAP_DATA;
+    var lsKey = modulo==='emo' ? LS_EMO : modulo==='alt' ? LS_ALT : modulo==='con' ? LS_CON : LS_CAP;
+    remotos.forEach(function(rem){
+      var uid = (rem.cedula||'')+'|'+(rem.fecha||'')+'|'+(rem.nivel||rem.tipo||'');
+      var idx = LOCAL.findIndex(function(loc){
+        return ((loc.cedula||'')+'|'+(loc.fecha||'')+'|'+(loc.nivel||loc.tipo||'')) === uid;
+      });
+      if(idx >= 0) LOCAL[idx] = Object.assign({}, LOCAL[idx], rem);
+      else LOCAL.push(rem);
+    });
+    if(modulo==='emo') EMO_DATA = LOCAL;
+    else if(modulo==='alt') ALT_DATA = LOCAL;
+    else if(modulo==='con') CON_DATA = LOCAL;
+    else CAP_DATA = LOCAL;
+    localStorage.setItem(lsKey, JSON.stringify(LOCAL));
+    if(modulo==='emo') renderEMO();
+    else if(modulo==='alt') renderAlturas();
+    else if(modulo==='con') renderConfinados();
+    else renderCAP();
+    toast('✅ '+remotos.length+' registros cargados desde Sheets','ok');
+  })
+  .catch(function(err){ toast('⚠️ Sin conexión a Sheets','err'); });
+}
+
 // ── Helper: sincronizar módulo completo con Sheets ───────────────
 function sincronizarModulo(modulo){
   var url = getScriptUrl();
   if(!url){ toast('Configure la URL del script primero','err'); return; }
-  var DATA = modulo==='emo' ? EMO_DATA : modulo==='alt' ? ALT_DATA : CON_DATA;
+  var DATA = modulo==='emo' ? EMO_DATA : modulo==='alt' ? ALT_DATA : modulo==='con' ? CON_DATA : CAP_DATA;
   if(!DATA.length){ toast('Sin datos para sincronizar','err'); return; }
   toast('☁️ Sincronizando '+DATA.length+' registros…');
   fetch(url, {
@@ -4382,6 +4796,464 @@ function poblarDatalists(){
   dptos.forEach(function(d){ var o=document.createElement('option'); o.value=d; dl_d.appendChild(o); });
   municipios.forEach(function(m){ var o=document.createElement('option'); o.value=m; dl_m.appendChild(o); });
 }
+
+// ═══════════════════════════════════════════════
+// MÓDULO CAPACITACIONES
+// ═══════════════════════════════════════════════
+var LS_CAP  = 'hse_eqi_cap_v1';
+var CAP_DATA = [];
+
+// ── Cargar desde localStorage ─────────────────
+function cargarCAP(){
+  try{ CAP_DATA = JSON.parse(localStorage.getItem(LS_CAP)) || []; } catch(e){ CAP_DATA=[]; }
+}
+
+// ── Semáforo CAP (igual que módulos cert) ──────
+function semaforoCAP(r){
+  if(!r.tieneVenc || r.tieneVenc!=='SI') return { est:'sin_fecha', color:'var(--ink3)', label:'Sin venc.', bg:'var(--bg)' };
+  return semaforo(diasHasta(r.vencimiento));
+}
+
+// ── Renderizar tabla ──────────────────────────
+function renderCAP(){
+  var tbody = document.getElementById('cap_tbody');
+  var empty = document.getElementById('cap_empty');
+  if(!tbody) return;
+
+  var busq   = (document.getElementById('cap_search')||{}).value||'';
+  var tipoF  = (document.getElementById('cap_tipo_f')||{}).value||'';
+  var estF   = (document.getElementById('cap_estado_f')||{}).value||'';
+  var aprobF = (document.getElementById('cap_aprobado_f')||{}).value||'';
+  busq = busq.toLowerCase();
+
+  var fil = CAP_DATA.filter(function(r, i){
+    r._idx = i;
+    var hayBusq = !busq ||
+      (r.nombre||'').toLowerCase().includes(busq) ||
+      String(r.cedula||'').includes(busq) ||
+      (r.tema||'').toLowerCase().includes(busq);
+    var hayTipo  = !tipoF  || r.tipo===tipoF;
+    var sem = semaforoCAP(r);
+    var hayEst   = !estF   || sem.est===estF;
+    var hayAprob = !aprobF || r.aprobado===aprobF;
+    return hayBusq && hayTipo && hayEst && hayAprob;
+  });
+
+  // Contadores globales
+  var tot=CAP_DATA.length, venc=0, prox90=0;
+  CAP_DATA.forEach(function(r){
+    var s=semaforoCAP(r);
+    if(s.est==='vencido') venc++;
+    if(s.est==='prox90'||s.est==='prox30') prox90++;
+  });
+  var el=document.getElementById('cap_total'); if(el) el.textContent=tot;
+  var ev=document.getElementById('cap_venc');  if(ev) ev.textContent=venc+' vencidos';
+  var ep=document.getElementById('cap_prox90');if(ep) ep.textContent=prox90+' próx. 90d';
+
+  if(!fil.length){
+    tbody.innerHTML=''; empty.style.display='block'; return;
+  }
+  empty.style.display='none';
+
+  // Ordenar: vencidos primero, luego por fecha descendente
+  fil.sort(function(a,b){
+    var sa=semaforoCAP(a).est, sb=semaforoCAP(b).est;
+    var order={vencido:0,prox30:1,prox90:2,vigente:3,sin_fecha:4};
+    var oa=order[sa]!==undefined?order[sa]:4;
+    var ob=order[sb]!==undefined?order[sb]:4;
+    if(oa!==ob) return oa-ob;
+    return (b.fecha||'').localeCompare(a.fecha||'');
+  });
+
+  tbody.innerHTML = fil.map(function(r){
+    var sem = semaforoCAP(r);
+    var apBadge = r.aprobado==='SI'
+      ? '<span class="tag" style="background:var(--grn2);color:var(--grn)">✅ Sí</span>'
+      : r.aprobado==='NO'
+        ? '<span class="tag" style="background:#fff0f0;color:#c0392b">❌ No</span>'
+        : '<span style="color:var(--ink3);font-size:11px">—</span>';
+    var vencTxt = r.tieneVenc==='SI' ? (r.vencimiento||'—') : '<span style="color:var(--ink3);font-size:11px">Sin venc.</span>';
+    return '<tr>'
+      +'<td><div style="font-weight:600;font-size:12.5px">'+(r.nombre||r.cedula||'—')+'</div><div style="font-size:11px;color:var(--ink3)">'+r.cedula+'</div></td>'
+      +'<td style="font-size:12.5px;font-weight:500">'+(r.tema||'—')+'</td>'
+      +'<td><span class="tag">'+(r.tipo||'—')+'</span></td>'
+      +'<td style="font-size:12px">'+(r.fecha||'—')+'</td>'
+      +'<td style="font-size:12px;text-align:center">'+(r.horas?r.horas+'h':'—')+'</td>'
+      +'<td style="font-size:12px">'+(r.entidad||'—')+'</td>'
+      +'<td style="font-size:12px">'+vencTxt+'</td>'
+      +'<td>'+( r.tieneVenc==='SI' ? '<span class="tag" style="background:'+sem.bg+';color:'+sem.color+'">'+sem.label+'</span>' : '<span style="color:var(--ink3);font-size:11px">—</span>' )+'</td>'
+      +'<td>'+apBadge+'</td>'
+      +'<td><div style="display:flex;gap:4px" data-cap-idx="'+r._idx+'">'
+        +'<button class="btn btn-ghost btn-xs" onclick="capEditar(this)" title="Editar">✏️</button>'
+        +'<button class="btn btn-ghost btn-xs" onclick="capHistorial(this)" title="Historial trabajador">📋</button>'
+        +'<button class="btn btn-danger btn-xs" onclick="capEliminar(this)" title="Eliminar">🗑</button>'
+      +'</div></td>'
+    +'</tr>';
+  }).join('');
+}
+
+// ── Helpers botones ───────────────────────────
+function capEditar(btn){ var idx=parseInt(btn.closest('[data-cap-idx]').dataset.capIdx); abrirModalCAP(idx); }
+function capEliminar(btn){
+  var idx=parseInt(btn.closest('[data-cap-idx]').dataset.capIdx);
+  if(!confirm('¿Eliminar este registro de capacitación?')) return;
+  CAP_DATA.splice(idx,1);
+  localStorage.setItem(LS_CAP, JSON.stringify(CAP_DATA));
+  renderCAP();
+  toast('Registro eliminado');
+}
+function capHistorial(btn){
+  var idx=parseInt(btn.closest('[data-cap-idx]').dataset.capIdx);
+  var r=CAP_DATA[idx]; if(!r) return;
+  mostrarHistorialCAP(r.cedula);
+}
+
+// ── Abrir/cerrar modal ────────────────────────
+function abrirModalCAP(idx){
+  // Poblar select trabajadores
+  var sel=document.getElementById('cap_trabajador');
+  sel.innerHTML='<option value="">— Seleccione —</option>';
+  DB.filter(function(w){ return w.estado!=='Inactivo'; }).forEach(function(w){
+    var nom=[w.nombre1,w.nombre2,w.apellido1,w.apellido2].filter(Boolean).join(' ');
+    var opt=document.createElement('option');
+    opt.value=w.cedula; opt.textContent=nom+' · '+w.cedula;
+    opt.dataset.nombre=nom;
+    sel.appendChild(opt);
+  });
+
+  // Limpiar campos
+  document.getElementById('cap_edit_idx').value='';
+  ['cap_tema','cap_horas','cap_entidad','cap_facilitador','cap_nota','cap_soporte','cap_obs','cap_vig_meses','cap_vencimiento'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  ['cap_tipo','cap_modalidad','cap_aprobado'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  var chkV=document.getElementById('cap_tiene_venc'); if(chkV) chkV.checked=false;
+  capToggleVenc();
+  document.getElementById('cap_fecha').value='';
+  document.getElementById('modalCAPTitle').textContent='Registrar capacitación';
+
+  // Si es edición, cargar datos
+  if(idx !== undefined && CAP_DATA[idx]){
+    var r=CAP_DATA[idx];
+    document.getElementById('cap_edit_idx').value=idx;
+    document.getElementById('modalCAPTitle').textContent='Editar capacitación';
+    // Seleccionar trabajador
+    Array.from(sel.options).forEach(function(o){ if(o.value===String(r.cedula)) o.selected=true; });
+    document.getElementById('cap_tema').value=r.tema||'';
+    document.getElementById('cap_tipo').value=r.tipo||'';
+    document.getElementById('cap_modalidad').value=r.modalidad||'';
+    document.getElementById('cap_fecha').value=r.fecha||'';
+    document.getElementById('cap_horas').value=r.horas||'';
+    document.getElementById('cap_entidad').value=r.entidad||'';
+    document.getElementById('cap_facilitador').value=r.facilitador||'';
+    document.getElementById('cap_aprobado').value=r.aprobado||'';
+    document.getElementById('cap_nota').value=r.nota||'';
+    document.getElementById('cap_soporte').value=r.soporte||'';
+    document.getElementById('cap_obs').value=r.obs||'';
+    if(r.tieneVenc==='SI'){
+      document.getElementById('cap_tiene_venc').checked=true;
+      capToggleVenc();
+      document.getElementById('cap_vig_meses').value=r.vigMeses||'';
+      document.getElementById('cap_vencimiento').value=r.vencimiento||'';
+    }
+  }
+  document.getElementById('modalCAP').style.display='flex';
+}
+function cerrarModalCAP(){ document.getElementById('modalCAP').style.display='none'; }
+
+// ── Toggle vencimiento ────────────────────────
+function capToggleVenc(){
+  var chk=document.getElementById('cap_tiene_venc');
+  var wrap=document.getElementById('cap_venc_wrap');
+  if(wrap) wrap.style.display=(chk&&chk.checked)?'block':'none';
+  if(chk&&!chk.checked){
+    var el=document.getElementById('cap_vencimiento'); if(el) el.value='';
+  }
+}
+
+// ── Calcular vencimiento automático ──────────
+function capCalcVenc(){
+  var chk=document.getElementById('cap_tiene_venc');
+  if(!chk||!chk.checked) return;
+  var fecha=document.getElementById('cap_fecha').value;
+  var meses=parseInt(document.getElementById('cap_vig_meses').value||'0');
+  if(!fecha||!meses){ document.getElementById('cap_vencimiento').value=''; return; }
+  var d=new Date(fecha); d.setMonth(d.getMonth()+meses);
+  document.getElementById('cap_vencimiento').value=d.toISOString().split('T')[0];
+}
+
+// ── Guardar ───────────────────────────────────
+function guardarCAP(){
+  var sel=document.getElementById('cap_trabajador');
+  var cedula=sel.value;
+  var opt=sel.options[sel.selectedIndex];
+  var nombre=opt?opt.dataset.nombre||opt.textContent:'';
+  var tema=document.getElementById('cap_tema').value.trim();
+  var tipo=document.getElementById('cap_tipo').value;
+  var fecha=document.getElementById('cap_fecha').value;
+
+  if(!cedula){ toast('Seleccione un trabajador','err'); return; }
+  if(!tema){   toast('Ingrese el tema / nombre del curso','err'); return; }
+  if(!tipo){   toast('Seleccione el tipo','err'); return; }
+  if(!fecha){  toast('Ingrese la fecha de realización','err'); return; }
+
+  var chkV=document.getElementById('cap_tiene_venc');
+  var tieneVenc=(chkV&&chkV.checked)?'SI':'NO';
+  var vigMeses=tieneVenc==='SI'?(document.getElementById('cap_vig_meses').value||''):'';
+  var vencimiento=tieneVenc==='SI'?(document.getElementById('cap_vencimiento').value||''):'';
+
+  var reg={
+    cedula:cedula, nombre:nombre,
+    tema:tema, tipo:tipo,
+    modalidad:document.getElementById('cap_modalidad').value,
+    fecha:fecha,
+    horas:document.getElementById('cap_horas').value,
+    entidad:document.getElementById('cap_entidad').value,
+    facilitador:document.getElementById('cap_facilitador').value,
+    tieneVenc:tieneVenc, vigMeses:vigMeses, vencimiento:vencimiento,
+    aprobado:document.getElementById('cap_aprobado').value,
+    nota:document.getElementById('cap_nota').value,
+    soporte:document.getElementById('cap_soporte').value,
+    obs:document.getElementById('cap_obs').value,
+    fechaRegistro:new Date().toISOString()
+  };
+
+  var idxStr=document.getElementById('cap_edit_idx').value;
+  if(idxStr!==''){
+    var orig=CAP_DATA[parseInt(idxStr)]||{};
+    reg.fechaRegistro=orig.fechaRegistro||reg.fechaRegistro;
+    CAP_DATA[parseInt(idxStr)]=reg;
+    toast('Capacitación actualizada','ok');
+  } else {
+    CAP_DATA.push(reg);
+    toast('Capacitación registrada','ok');
+  }
+
+  localStorage.setItem(LS_CAP, JSON.stringify(CAP_DATA));
+  cerrarModalCAP();
+  renderCAP();
+
+  // Sync Sheets
+  var url=getScriptUrl();
+  if(url){
+    fetch(url,{method:'POST',body:new URLSearchParams(Object.assign({accion:'guardarCapacitacion'},reg))})
+      .catch(function(){});
+  }
+}
+
+// ── Historial por trabajador ──────────────────
+function mostrarHistorialCAP(cedula){
+  var regs=CAP_DATA.map(function(r,i){ return Object.assign({},r,{_idx:i}); })
+    .filter(function(r){ return String(r.cedula)===String(cedula); })
+    .sort(function(a,b){ return (b.fecha||'').localeCompare(a.fecha||''); });
+  var nombre=regs.length?(regs[0].nombre||cedula):cedula;
+  document.getElementById('histCAPTitle').textContent='Historial · '+nombre;
+  document.getElementById('histCAPBody').innerHTML=regs.map(function(r){
+    var sem=semaforoCAP(r);
+    var apBadge=r.aprobado==='SI'?'<span class="tag" style="background:var(--grn2);color:var(--grn)">✅ Aprobado</span>':r.aprobado==='NO'?'<span class="tag" style="background:#fff0f0;color:#c0392b">❌ No aprobado</span>':'';
+    return '<div style="background:var(--card);border:1px solid var(--bor);border-radius:var(--r2);padding:10px 12px;margin-bottom:8px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
+      +'<div style="flex:1">'
+        +'<div style="font-size:13px;font-weight:700">'+(r.tema||'—')+'</div>'
+        +'<div style="font-size:11.5px;color:var(--ink3);margin-top:2px">'+(r.tipo||'')+(r.modalidad?' · '+r.modalidad:'')+(r.fecha?' · '+r.fecha:'')+(r.horas?' · '+r.horas+'h':'')+'</div>'
+        +'<div style="font-size:11.5px;color:var(--ink3)">Entidad: '+(r.entidad||'-')+(r.facilitador?' · Instructor: '+r.facilitador:'')+'</div>'
+        +(r.tieneVenc==='SI'?'<div style="font-size:11.5px;margin-top:3px">Vence: '+(r.vencimiento||'—')+' · <span style="background:'+sem.bg+';color:'+sem.color+';padding:1px 6px;border-radius:4px;font-size:10px">'+sem.label+'</span></div>':'')
+        +(apBadge?'<div style="margin-top:4px">'+apBadge+(r.nota?' <span style="font-size:11px;color:var(--ink3)">Nota: '+r.nota+'</span>':'')+'</div>':'')
+        +(r.obs?'<div style="font-size:11px;color:var(--ink2);margin-top:3px">'+r.obs+'</div>':'')
+        +(r.soporte?'<div style="font-size:11px;margin-top:3px">📎 <a href="'+r.soporte+'" target="_blank" style="color:var(--acc)">Ver soporte</a></div>':'')
+      +'</div>'
+      +'<div style="display:flex;gap:4px;flex-shrink:0">'
+        +'<button class="btn btn-ghost btn-xs" onclick="cerrarHistCAP();abrirModalCAP('+r._idx+')" title="Editar">✏️</button>'
+        +'<button class="btn btn-danger btn-xs" onclick="capEliminarDesdeHist('+r._idx+')">🗑</button>'
+      +'</div></div></div>';
+  }).join('')||'<div style="color:var(--ink3);padding:8px;font-size:12px">Sin registros para este trabajador.</div>';
+  document.getElementById('historialCAP').style.display='flex';
+}
+function cerrarHistCAP(){ document.getElementById('historialCAP').style.display='none'; }
+function capEliminarDesdeHist(idx){
+  if(!confirm('¿Eliminar este registro?')) return;
+  var cedula=CAP_DATA[idx]?CAP_DATA[idx].cedula:'';
+  CAP_DATA.splice(idx,1);
+  localStorage.setItem(LS_CAP, JSON.stringify(CAP_DATA));
+  renderCAP();
+  cerrarHistCAP();
+  if(cedula) mostrarHistorialCAP(cedula);
+  toast('Registro eliminado');
+}
+
+// ── Exportar CSV ──────────────────────────────
+function exportCAPCSV(){
+  if(!CAP_DATA.length){ toast('Sin datos para exportar','err'); return; }
+  var hdr='Cedula;Nombre;Tema;Tipo;Modalidad;Fecha;Horas;Entidad;Facilitador;TieneVenc;VigMeses;Vencimiento;Aprobado;Nota;Soporte;Obs;FechaRegistro';
+  var rows=CAP_DATA.map(function(r){
+    return [r.cedula,r.nombre,r.tema,r.tipo,r.modalidad,r.fecha,r.horas,r.entidad,r.facilitador,
+            r.tieneVenc,r.vigMeses,r.vencimiento,r.aprobado,r.nota,r.soporte,r.obs,r.fechaRegistro]
+      .map(function(v){ return '"'+(v||'').toString().replace(/"/g,'""')+'"'; }).join(';');
+  });
+  var blob=new Blob(['﻿'+hdr+'\n'+rows.join('\n')],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='HSE_Capacitaciones_'+hoy()+'.csv'; a.click();
+}
+
+
+// ═══════════════════════════════════════════════
+// REPORTE HIJOS NAVIDAD — P5
+// ═══════════════════════════════════════════════
+function _calcEdadHijo(fnac){
+  if(!fnac) return null;
+  var hoy = new Date();
+  var n   = new Date(fnac);
+  if(isNaN(n)) return null;
+  var e = hoy.getFullYear() - n.getFullYear();
+  if(hoy.getMonth() < n.getMonth() || (hoy.getMonth()===n.getMonth() && hoy.getDate()<n.getDate())) e--;
+  return e >= 0 ? e : null;
+}
+
+function _segmentoHijo(edad, genero){
+  if(edad === null) return null;
+  var sexo = (genero||'').toUpperCase();
+  var esF  = sexo==='F' || sexo==='FEMENINO' || sexo==='NIÑA' || sexo==='MUJER';
+  var esM  = sexo==='M' || sexo==='MASCULINO' || sexo==='NIÑO' || sexo==='HOMBRE';
+  if(edad <= 6)  return esF ? 'Niñas 0–6'    : esM ? 'Niños 0–6'    : 'Sin género 0–6';
+  if(edad <= 15) return esF ? 'Niñas 7–15'   : esM ? 'Niños 7–15'   : 'Sin género 7–15';
+  return                esF ? 'Mujeres +16'  : esM ? 'Hombres +16'  : 'Sin género +16';
+}
+
+function renderHijosNavidad(){
+  var segEl  = document.getElementById('dash_hijos_segmentos');
+  var totEl  = document.getElementById('dash_hijos_total');
+  var empEl  = document.getElementById('dash_hijos_empty');
+  if(!segEl) return;
+
+  var conteos = {
+    'Niños 0–6':0,'Niñas 0–6':0,
+    'Niños 7–15':0,'Niñas 7–15':0,
+    'Hombres +16':0,'Mujeres +16':0,
+    'Sin género 0–6':0,'Sin género 7–15':0,'Sin género +16':0
+  };
+  var total = 0;
+
+  DB.filter(function(w){ return w.estado!=='Inactivo' && w.tieneHijos==='SI'; })
+    .forEach(function(w){
+      var hijos = [];
+      try{ hijos = JSON.parse(w.hijos_detalle||'[]'); }catch(e){}
+      if(!Array.isArray(hijos)) return;
+      hijos.forEach(function(h){
+        var edad = _calcEdadHijo(h.fnac);
+        var seg  = _segmentoHijo(edad, h.genero);
+        if(seg){ conteos[seg]=(conteos[seg]||0)+1; total++; }
+      });
+    });
+
+  if(totEl) totEl.textContent = total;
+
+  if(total === 0){
+    segEl.innerHTML = '';
+    if(empEl) empEl.style.display = 'block';
+    return;
+  }
+  if(empEl) empEl.style.display = 'none';
+
+  // Colores por segmento
+  var colores = {
+    'Niños 0–6'    :{ bg:'#e8f4fd', color:'#1a6fa8', emoji:'👶' },
+    'Niñas 0–6'    :{ bg:'#fde8f4', color:'#a81a6f', emoji:'👶' },
+    'Niños 7–15'   :{ bg:'#e8f0fd', color:'#1a3fa8', emoji:'🧒' },
+    'Niñas 7–15'   :{ bg:'#fde8f0', color:'#a81a3f', emoji:'🧒' },
+    'Hombres +16'  :{ bg:'#e8fde8', color:'#1a6b1a', emoji:'👦' },
+    'Mujeres +16'  :{ bg:'#fdf5e8', color:'#8b5a00', emoji:'👧' },
+    'Sin género 0–6':{ bg:'var(--bg)', color:'var(--ink3)', emoji:'🧒' },
+    'Sin género 7–15':{ bg:'var(--bg)', color:'var(--ink3)', emoji:'🧒' },
+    'Sin género +16':{ bg:'var(--bg)', color:'var(--ink3)', emoji:'👤' }
+  };
+
+  // Solo mostrar segmentos con al menos 1 hijo
+  var orden = ['Niños 0–6','Niñas 0–6','Niños 7–15','Niñas 7–15','Hombres +16','Mujeres +16','Sin género 0–6','Sin género 7–15','Sin género +16'];
+  segEl.innerHTML = orden
+    .filter(function(s){ return conteos[s] > 0; })
+    .map(function(s){
+      var c = colores[s] || { bg:'var(--bg)', color:'var(--ink2)', emoji:'👤' };
+      var pct = total > 0 ? Math.round(conteos[s]/total*100) : 0;
+      return '<div style="background:'+c.bg+';border-radius:var(--r2);padding:14px 16px;text-align:center">'
+        +'<div style="font-size:22px;margin-bottom:4px">'+c.emoji+'</div>'
+        +'<div style="font-size:22px;font-weight:700;color:'+c.color+'">'+conteos[s]+'</div>'
+        +'<div style="font-size:11.5px;font-weight:600;color:'+c.color+';margin-top:2px">'+s+'</div>'
+        +'<div style="font-size:10.5px;color:var(--ink3);margin-top:2px">'+pct+'% del total</div>'
+        +'</div>';
+    }).join('');
+}
+
+function exportHijosNavidad(){
+  // Recopilar datos — solo cédula, nombre trabajador, nombre hijo, sexo, edad
+  var filas = [];
+  DB.filter(function(w){ return w.estado!=='Inactivo' && w.tieneHijos==='SI'; })
+    .forEach(function(w){
+      var nomTrab = [w.nombre1,w.nombre2,w.apellido1,w.apellido2].filter(Boolean).join(' ');
+      var hijos = [];
+      try{ hijos = JSON.parse(w.hijos_detalle||'[]'); }catch(e){}
+      if(!Array.isArray(hijos)) return;
+      hijos.forEach(function(h){
+        var edad = _calcEdadHijo(h.fnac);
+        filas.push({
+          cedula    : w.cedula,
+          trabajador: nomTrab,
+          hijo      : h.nombre||'',
+          sexo      : h.genero||'',
+          edad      : edad !== null ? edad : ''
+        });
+      });
+    });
+
+  if(!filas.length){ toast('Sin datos de hijos para exportar','err'); return; }
+
+  // Cargar SheetJS dinámicamente y generar XLSX
+  if(typeof XLSX !== 'undefined'){
+    _generarXLSXHijos(filas);
+  } else {
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = function(){ _generarXLSXHijos(filas); };
+    s.onerror = function(){ toast('Error cargando librería Excel','err'); };
+    document.head.appendChild(s);
+  }
+}
+
+function _generarXLSXHijos(filas){
+  // Construir datos con encabezados en español
+  var datos = [['Cédula Trabajador','Nombre Trabajador','Nombre Niño/a','Sexo','Edad']];
+  filas.forEach(function(f){
+    datos.push([
+      String(f.cedula),
+      f.trabajador,
+      f.hijo,
+      f.sexo,
+      f.edad !== '' ? Number(f.edad) : ''
+    ]);
+  });
+
+  var wb = XLSX.utils.book_new();
+  var ws = XLSX.utils.aoa_to_sheet(datos);
+
+  // Anchos de columna
+  ws['!cols'] = [
+    {wch:18}, // Cédula
+    {wch:35}, // Trabajador
+    {wch:28}, // Nombre hijo
+    {wch:10}, // Sexo
+    {wch:8}   // Edad
+  ];
+
+  // Estilo encabezado (SheetJS CE no soporta estilos nativos, usamos hoja extra)
+  // Congelar fila de encabezado
+  ws['!freeze'] = {xSplit:0, ySplit:1};
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Hijos Navidad');
+  XLSX.writeFile(wb, 'HSE_Hijos_Navidad_'+hoy()+'.xlsx');
+  toast('✅ '+filas.length+' registros exportados a Excel','ok');
+}
+
 
 </script>
 </body>
